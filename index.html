@@ -6,14 +6,14 @@
     <title>محفظتي - مصاريفي وتحويشتي الشخصية</title>
     
     <!-- PWA & Mobile Native App Metas -->
-    <meta name="theme-color" content="#020617">
+    <meta name="theme-color" content="#030712">
     <meta name="mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="application-name" content="محفظتي الشخصية">
 
     <!-- App Icon (SVG Data URI) -->
-    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 512 512'><rect width='512' height='512' rx='120' fill='%23020617'/><path d='M160 180 C160 120, 352 120, 352 180 L352 360 C352 400, 160 400, 160 360 Z' fill='%2310b981'/><circle cx='256' cy='260' r='50' fill='%23f59e0b'/><path d='M210 140 H302 V180 H210 Z' fill='%2306b6d4'/></svg>">
+    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 512 512'><rect width='512' height='512' rx='120' fill='%23030712'/><path d='M160 180 C160 120, 352 120, 352 180 L352 360 C352 400, 160 400, 160 360 Z' fill='%2310b981'/><circle cx='256' cy='260' r='50' fill='%23f59e0b'/><path d='M210 140 H302 V180 H210 Z' fill='%236366f1'/></svg>">
 
     <!-- Google Fonts - Cairo -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -40,15 +40,16 @@
                         cairo: ['Cairo', 'sans-serif'],
                     },
                     colors: {
-                        vault: {
-                            50: '#ecfdf5',
+                        brand: {
+                            50: '#f0fdf4',
                             500: '#10b981',
                             600: '#059669',
                             700: '#047857',
                         },
-                        cafe: {
-                            500: '#d97706',
-                            600: '#b45309',
+                        violetTheme: {
+                            500: '#8b5cf6',
+                            600: '#7c3aed',
+                            900: '#2e1065',
                         }
                     }
                 }
@@ -59,56 +60,94 @@
     <style>
         body {
             font-family: 'Cairo', sans-serif;
-            background-color: #020617;
+            background: #050811;
+            background-image: 
+                radial-gradient(at 0% 0%, rgba(99, 102, 241, 0.15) 0px, transparent 50%),
+                radial-gradient(at 100% 0%, rgba(16, 185, 129, 0.15) 0px, transparent 50%),
+                radial-gradient(at 50% 100%, rgba(245, 158, 11, 0.08) 0px, transparent 50%);
+            background-attachment: fixed;
             color: #f8fafc;
             user-select: none;
             -webkit-user-select: none;
             -webkit-tap-highlight-color: transparent;
             touch-action: manipulation;
+            min-height: 100vh;
         }
         ::-webkit-scrollbar {
-            width: 5px;
-            height: 5px;
+            width: 6px;
+            height: 6px;
         }
         ::-webkit-scrollbar-track {
-            background: #0f172a;
+            background: #070a13;
         }
         ::-webkit-scrollbar-thumb {
-            background: #334155;
-            border-radius: 4px;
+            background: #1e293b;
+            border-radius: 999px;
         }
         ::-webkit-scrollbar-thumb:hover {
-            background: #475569;
+            background: #6366f1;
         }
         input, select, button {
             -webkit-appearance: none;
         }
         .glow-emerald {
-            box-shadow: 0 0 25px -5px rgba(16, 185, 129, 0.25);
+            box-shadow: 0 10px 30px -10px rgba(16, 185, 129, 0.35);
+        }
+        .glow-violet {
+            box-shadow: 0 10px 30px -10px rgba(139, 92, 246, 0.35);
         }
         .glow-amber {
-            box-shadow: 0 0 25px -5px rgba(245, 158, 11, 0.2);
+            box-shadow: 0 10px 30px -10px rgba(245, 158, 11, 0.3);
+        }
+        .glow-rose {
+            box-shadow: 0 10px 30px -10px rgba(244, 63, 94, 0.3);
+        }
+        .glass-card {
+            background: rgba(13, 18, 30, 0.75);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        .glass-card:hover {
+            border-color: rgba(99, 102, 241, 0.4);
+            transform: translateY(-1px);
+        }
+        .gradient-text-emerald {
+            background: linear-gradient(135deg, #34d399 0%, #10b981 50%, #059669 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        .gradient-text-violet {
+            background: linear-gradient(135deg, #c084fc 0%, #8b5cf6 50%, #6366f1 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        .gradient-text-amber {
+            background: linear-gradient(135deg, #fbbf24 0%, #f59e0b 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
         }
     </style>
 </head>
-<body class="min-h-screen flex flex-col p-2 sm:p-5 gap-4 bg-slate-950 text-slate-100 selection:bg-emerald-500 selection:text-white pb-20 sm:pb-6">
+<body class="p-2 sm:p-5 flex flex-col gap-4 text-slate-100 selection:bg-violet-500 selection:text-white pb-24 sm:pb-8">
 
-    <!-- PASSWORD LOCK SCREEN OVERLAY (PIN: 1234 Default or customizable) -->
-    <div id="pinLockModal" class="fixed inset-0 z-50 bg-slate-950/95 backdrop-blur-md flex items-center justify-center p-4">
-        <div class="bg-slate-900 border border-slate-800 rounded-3xl p-6 sm:p-8 w-full max-w-sm text-center shadow-2xl relative overflow-hidden">
-            <div class="absolute -top-12 -right-12 w-32 h-32 bg-emerald-500/10 rounded-full blur-2xl"></div>
-            <div class="absolute -bottom-12 -left-12 w-32 h-32 bg-amber-500/10 rounded-full blur-2xl"></div>
+    <!-- PASSWORD LOCK SCREEN OVERLAY (PIN: 2607) -->
+    <div id="pinLockModal" class="fixed inset-0 z-50 bg-gray-950/95 backdrop-blur-xl flex items-center justify-center p-4">
+        <div class="bg-slate-900/90 border border-slate-800 rounded-3xl p-6 sm:p-8 w-full max-w-sm text-center shadow-2xl relative overflow-hidden glow-violet">
+            <div class="absolute -top-12 -right-12 w-32 h-32 bg-violet-500/20 rounded-full blur-2xl"></div>
+            <div class="absolute -bottom-12 -left-12 w-32 h-32 bg-emerald-500/20 rounded-full blur-2xl"></div>
 
-            <div class="w-16 h-16 rounded-2xl bg-gradient-to-tr from-emerald-600 via-teal-600 to-amber-500 flex items-center justify-center text-white text-2xl font-bold mx-auto mb-4 shadow-lg shadow-emerald-500/20">
+            <div class="w-16 h-16 rounded-2xl bg-gradient-to-tr from-violet-600 via-indigo-600 to-emerald-500 flex items-center justify-center text-white text-2xl font-bold mx-auto mb-4 shadow-lg shadow-violet-500/25">
                 <i class="fa-solid fa-piggy-bank"></i>
             </div>
 
-            <h2 class="text-xl font-black text-white mb-1">محفظتي الشخصية</h2>
+            <h2 class="text-xl font-black text-white mb-1">محفظتي الشخصية 👑</h2>
             <p class="text-xs text-slate-400 font-semibold mb-6">أدخل الرقم السري للدخول</p>
 
             <form onsubmit="handlePinSubmit(event)" class="space-y-4">
                 <div class="relative">
-                    <input type="password" maxlength="6" id="pinInput" placeholder="• • • •" class="w-full bg-slate-800/80 border border-slate-700 text-center text-2xl font-bold tracking-widest text-white py-3 rounded-2xl focus:outline-none focus:border-emerald-500 transition-all placeholder:text-slate-600">
+                    <input type="password" maxlength="6" id="pinInput" placeholder="• • • •" class="w-full bg-slate-950/80 border border-slate-700 text-center text-2xl font-bold tracking-widest text-white py-3 rounded-2xl focus:outline-none focus:border-violet-500 transition-all placeholder:text-slate-600">
                 </div>
 
                 <div id="pinErrorMsg" class="text-xs text-rose-400 font-bold hidden flex items-center justify-center gap-1">
@@ -116,7 +155,7 @@
                     <span>الرقم السري خاطئ، جرب تاني</span>
                 </div>
 
-                <button type="submit" class="w-full bg-gradient-to-r from-emerald-600 via-teal-600 to-amber-500 hover:opacity-90 text-white font-extrabold py-3 rounded-2xl shadow-lg transition-all active:scale-95 text-sm">
+                <button type="submit" class="w-full bg-gradient-to-r from-violet-600 via-indigo-600 to-emerald-500 hover:opacity-90 text-white font-extrabold py-3 rounded-2xl shadow-lg transition-all active:scale-95 text-sm">
                     افتح المحفظة <i class="fa-solid fa-key mr-1"></i>
                 </button>
             </form>
@@ -124,39 +163,44 @@
     </div>
 
     <!-- MAIN APP HEADER -->
-    <header class="bg-slate-900/90 backdrop-blur-md rounded-2xl p-3 sm:p-4 border border-slate-800 flex flex-col md:flex-row items-center justify-between gap-3 shrink-0 shadow-xl">
+    <header class="glass-card rounded-3xl p-4 sm:p-5 flex flex-col md:flex-row items-center justify-between gap-4 shrink-0 shadow-2xl relative overflow-hidden border-indigo-500/20">
         <div class="flex items-center justify-between w-full md:w-auto">
-            <div class="flex items-center gap-3">
-                <div class="w-11 h-11 rounded-2xl bg-gradient-to-tr from-emerald-500 via-teal-600 to-indigo-600 flex items-center justify-center text-white shadow-md text-xl font-bold glow-emerald">
+            <div class="flex items-center gap-3.5">
+                <div class="w-13 h-13 p-3 rounded-2xl bg-gradient-to-tr from-violet-600 via-indigo-600 to-teal-400 flex items-center justify-center text-white shadow-xl text-2xl font-black glow-violet ring-2 ring-white/10">
                     <i class="fa-solid fa-wallet"></i>
                 </div>
                 <div>
-                    <h1 class="font-extrabold text-white text-base sm:text-lg tracking-tight">محفظتي - مصاريفي وتحويشتي 👑</h1>
-                    <p class="text-[11px] text-slate-400 font-semibold mt-0.5 flex items-center gap-1.5">
-                        <span id="cloudSyncBadge" class="text-[11px] text-emerald-400 font-bold flex items-center gap-1.5 bg-emerald-500/10 px-2 py-0.5 rounded-lg border border-emerald-500/20">
-                            <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span> متزامن سحابياً ☁️
+                    <h1 class="font-black text-white text-base sm:text-2xl tracking-tight flex items-center gap-2">
+                        محفظتي - مصاريفي وتحويشتي <span class="text-xs bg-gradient-to-r from-violet-500 to-indigo-500 text-white font-extrabold px-2.5 py-0.5 rounded-full">Pro</span>
+                    </h1>
+                    <p class="text-[11px] text-slate-400 font-bold mt-1 flex flex-wrap items-center gap-2">
+                        <span id="cloudSyncBadge" class="text-[11px] text-emerald-400 font-bold flex items-center gap-1.5 bg-emerald-500/10 px-2.5 py-0.5 rounded-xl border border-emerald-500/20">
+                            <span class="w-2 h-2 rounded-full bg-emerald-400 animate-ping"></span> متزامن سحابياً ☁️
                         </span>
-                        <span>متابعة المواصلات، الجمعيات، القسط، والقهاوي والتحويشة</span>
+                        <span>إدارة المواصلات، الجمعيات، القسط، والتحويشة</span>
                     </p>
                 </div>
             </div>
 
-            <div class="flex items-center gap-1.5 md:hidden">
-                <button onclick="exportToExcel()" class="bg-slate-800 text-emerald-400 p-2.5 rounded-xl border border-slate-700 text-xs font-bold active:scale-95" title="تصدير إكسيل">
+            <div class="flex items-center gap-2 md:hidden">
+                <button onclick="triggerCloudSyncManual()" class="bg-slate-800/80 text-indigo-300 p-2.5 rounded-2xl border border-slate-700/80 text-xs font-bold active:scale-95 shadow-sm">
+                    <i class="fa-solid fa-rotate"></i>
+                </button>
+                <button onclick="exportToExcel()" class="bg-emerald-950/60 text-emerald-400 p-2.5 rounded-2xl border border-emerald-500/30 text-xs font-bold active:scale-95 shadow-sm">
                     <i class="fa-solid fa-file-excel"></i>
                 </button>
-                <button onclick="lockApp()" class="bg-slate-800 text-slate-300 p-2.5 rounded-xl border border-slate-700 text-xs font-bold active:scale-95" title="قفل">
+                <button onclick="lockApp()" class="bg-rose-950/50 text-rose-400 p-2.5 rounded-2xl border border-rose-500/30 text-xs font-bold active:scale-95 shadow-sm">
                     <i class="fa-solid fa-lock"></i>
                 </button>
             </div>
         </div>
 
         <!-- Month Filter Selector & Controls -->
-        <div class="flex flex-wrap items-center gap-2 w-full md:w-auto justify-end">
-            <div class="flex items-center bg-slate-800/90 rounded-xl px-3 py-1.5 border border-slate-700 text-xs font-bold text-slate-300 w-full sm:w-auto">
-                <i class="fa-regular fa-calendar-check text-emerald-400 ml-2"></i>
-                <span class="ml-2 whitespace-nowrap">الشهر:</span>
-                <select id="filterMonthSelect" onchange="handleMonthChange()" class="bg-transparent font-extrabold text-emerald-300 focus:outline-none cursor-pointer w-full">
+        <div class="flex flex-wrap items-center gap-2.5 w-full md:w-auto justify-end">
+            <div class="flex items-center bg-slate-900/90 rounded-2xl px-4 py-2.5 border border-indigo-500/30 text-xs font-bold text-slate-300 w-full sm:w-auto shadow-inner">
+                <i class="fa-regular fa-calendar-check text-indigo-400 ml-2 text-sm"></i>
+                <span class="ml-2 whitespace-nowrap text-slate-400">الشهر:</span>
+                <select id="filterMonthSelect" onchange="handleMonthChange()" class="bg-transparent font-extrabold text-indigo-300 focus:outline-none cursor-pointer w-full">
                     <option value="ALL">🗓️ كل الشهور</option>
                     <option value="يناير">يناير</option>
                     <option value="فبراير">فبراير</option>
@@ -173,12 +217,17 @@
                 </select>
             </div>
 
-            <button onclick="exportToExcel()" class="hidden md:flex bg-emerald-600/90 hover:bg-emerald-600 active:scale-95 text-white text-xs font-extrabold py-2 px-3 rounded-xl border border-emerald-500/30 transition-all items-center justify-center gap-1.5">
-                <i class="fa-solid fa-file-excel text-sm"></i>
-                <span>تصدير (XLSX)</span>
+            <button onclick="triggerCloudSyncManual()" class="hidden md:flex bg-slate-800/90 hover:bg-slate-700 text-indigo-300 active:scale-95 text-xs font-extrabold py-2.5 px-4 rounded-2xl border border-indigo-500/30 transition-all items-center justify-center gap-2 shadow-sm">
+                <i class="fa-solid fa-rotate text-sm text-indigo-400"></i>
+                <span>مزامنة</span>
             </button>
 
-            <button onclick="lockApp()" class="hidden md:flex bg-slate-800 hover:bg-slate-700 text-slate-300 hover:text-white p-2.5 rounded-xl border border-slate-700 text-xs font-bold items-center gap-1.5 transition-all active:scale-95">
+            <button onclick="exportToExcel()" class="hidden md:flex bg-gradient-to-r from-emerald-600 via-teal-600 to-cyan-600 hover:opacity-95 active:scale-95 text-white text-xs font-extrabold py-2.5 px-4 rounded-2xl border border-emerald-400/30 transition-all items-center justify-center gap-2 shadow-lg glow-emerald">
+                <i class="fa-solid fa-file-excel text-sm"></i>
+                <span>تصدير Excel</span>
+            </button>
+
+            <button onclick="lockApp()" class="hidden md:flex bg-rose-950/40 hover:bg-rose-900/50 text-rose-300 p-2.5 rounded-2xl border border-rose-500/30 text-xs font-bold items-center gap-2 transition-all active:scale-95">
                 <i class="fa-solid fa-lock text-rose-400"></i>
                 <span>قفل</span>
             </button>
@@ -186,25 +235,25 @@
     </header>
 
     <!-- TOP SUMMARY KPI CARDS -->
-    <section class="grid grid-cols-2 lg:grid-cols-4 gap-3 shrink-0">
+    <section class="grid grid-cols-2 lg:grid-cols-4 gap-3.5 shrink-0">
         
         <!-- Total Accumulated Savings Card -->
-        <div class="bg-slate-900/90 border border-emerald-500/30 p-3.5 rounded-2xl shadow-sm flex flex-col justify-between relative overflow-hidden glow-emerald">
-            <div class="absolute -left-6 -top-6 w-20 h-20 bg-emerald-500/10 rounded-full blur-xl"></div>
-            <div class="flex justify-between items-center text-slate-400 mb-1.5 relative z-10">
+        <div class="glass-card p-4 rounded-3xl shadow-xl flex flex-col justify-between relative overflow-hidden glow-emerald border-emerald-500/30 bg-gradient-to-br from-emerald-950/30 to-slate-900/80">
+            <div class="absolute -left-6 -top-6 w-24 h-24 bg-emerald-500/20 rounded-full blur-2xl"></div>
+            <div class="flex justify-between items-center text-slate-400 mb-2 relative z-10">
                 <span class="text-xs font-black text-emerald-400 flex items-center gap-1.5">
                     <i class="fa-solid fa-vault"></i> رصيد التحويشة
                 </span>
-                <button onclick="openTargetModal()" class="text-[10px] bg-emerald-500/20 text-emerald-300 px-2 py-0.5 rounded-md border border-emerald-500/30 font-bold hover:bg-emerald-500/30 transition-all">
-                    تعديل الهدف 🎯
+                <button onclick="openTargetModal()" class="text-[10px] bg-emerald-500/20 text-emerald-300 px-2.5 py-1 rounded-xl border border-emerald-500/40 font-extrabold hover:bg-emerald-500/30 transition-all">
+                    الهدف 🎯
                 </button>
             </div>
             <div class="relative z-10">
-                <div class="text-2xl font-black text-emerald-400 tracking-tight" id="kpiSavingsBalance">0 <span class="text-xs font-bold text-slate-400">ج.م</span></div>
-                <div class="w-full bg-slate-800 h-2 rounded-full mt-2 overflow-hidden border border-slate-700">
-                    <div id="savingsProgressBar" class="bg-gradient-to-r from-emerald-500 to-teal-400 h-full w-0 transition-all duration-500"></div>
+                <div class="text-2xl sm:text-3xl font-black gradient-text-emerald tracking-tight" id="kpiSavingsBalance">0 <span class="text-xs font-bold text-slate-400">ج.م</span></div>
+                <div class="w-full bg-slate-950 h-3 rounded-full mt-3 overflow-hidden border border-emerald-500/20 p-0.5">
+                    <div id="savingsProgressBar" class="bg-gradient-to-r from-emerald-500 via-teal-400 to-cyan-400 h-full rounded-full w-0 transition-all duration-700 shadow-sm"></div>
                 </div>
-                <div class="flex justify-between items-center text-[10px] text-slate-400 mt-1 font-bold">
+                <div class="flex justify-between items-center text-[10px] text-slate-400 mt-2 font-extrabold">
                     <span>الهدف: <span id="kpiSavingsTarget">50,000</span> ج.م</span>
                     <span id="kpiSavingsPct" class="text-emerald-400">0%</span>
                 </div>
@@ -212,107 +261,109 @@
         </div>
 
         <!-- Total Expenses Card -->
-        <div class="bg-slate-900/90 border border-slate-800 p-3.5 rounded-2xl shadow-sm flex flex-col justify-between">
-            <div class="flex justify-between items-center text-slate-400 mb-1.5">
-                <span class="text-xs font-bold text-slate-300">مصاريف الشهر</span>
-                <div class="w-7 h-7 rounded-xl bg-rose-500/10 border border-rose-500/20 text-rose-400 flex items-center justify-center text-xs">
-                    <i class="fa-solid fa-arrow-up-right-dots"></i>
+        <div class="glass-card p-4 rounded-3xl shadow-xl flex flex-col justify-between relative overflow-hidden glow-rose border-rose-500/30 bg-gradient-to-br from-rose-950/20 to-slate-900/80">
+            <div class="flex justify-between items-center text-slate-400 mb-2">
+                <span class="text-xs font-black text-rose-300 flex items-center gap-1.5">
+                    <i class="fa-solid fa-arrow-up-right-dots text-rose-400"></i> مصاريف الشهر
+                </span>
+                <div class="w-8 h-8 rounded-2xl bg-rose-500/20 border border-rose-500/30 text-rose-300 flex items-center justify-center text-xs shadow-inner">
+                    <i class="fa-solid fa-receipt"></i>
                 </div>
             </div>
             <div>
-                <div class="text-2xl font-black text-rose-400 tracking-tight" id="kpiTotalExpense">0 <span class="text-xs font-bold text-slate-400">ج.م</span></div>
-                <div class="text-[10px] text-slate-400 mt-1" id="kpiTotalCount">0 عملية الشراء والالتزامات</div>
+                <div class="text-2xl sm:text-3xl font-black text-rose-400 tracking-tight" id="kpiTotalExpense">0 <span class="text-xs font-bold text-slate-400">ج.م</span></div>
+                <div class="text-[10px] text-slate-400 mt-1 font-bold" id="kpiTotalCount">0 عملية إجمالية</div>
             </div>
         </div>
 
         <!-- Fixed Obligations (Gamayya + AC) -->
-        <div class="bg-slate-900/90 border border-cyan-500/30 p-3.5 rounded-2xl shadow-sm flex flex-col justify-between">
-            <div class="flex justify-between items-center text-slate-400 mb-1.5">
-                <span class="text-xs font-bold text-cyan-400 flex items-center gap-1.5">
-                    <i class="fa-solid fa-file-invoice-dollar"></i> الجمعيات والأقساط
+        <div class="glass-card p-4 rounded-3xl shadow-xl flex flex-col justify-between relative overflow-hidden border-violet-500/30 glow-violet bg-gradient-to-br from-violet-950/30 to-slate-900/80">
+            <div class="flex justify-between items-center text-slate-400 mb-2">
+                <span class="text-xs font-black text-violet-300 flex items-center gap-1.5">
+                    <i class="fa-solid fa-file-invoice-dollar text-violet-400"></i> الجمعيات والأقساط
                 </span>
-                <span id="kpiFixedBadge" class="text-[10px] px-2 py-0.5 rounded-full font-bold bg-cyan-500/20 text-cyan-300 border border-cyan-500/30">0/3 مدفوع</span>
+                <span id="kpiFixedBadge" class="text-[10px] px-2.5 py-0.5 rounded-full font-black bg-violet-500/20 text-violet-300 border border-violet-500/30">0/3 مدفوع</span>
             </div>
             <div>
-                <div class="text-2xl font-black text-cyan-300 tracking-tight" id="kpiFixedAmount">0 <span class="text-xs font-bold text-slate-500">ج.م</span></div>
-                <div class="text-[10px] text-slate-400 mt-1">الجمعية 1 + الجمعية 2 + قسط التكييف</div>
+                <div class="text-2xl sm:text-3xl font-black gradient-text-violet tracking-tight" id="kpiFixedAmount">0 <span class="text-xs font-bold text-slate-400">ج.م</span></div>
+                <div class="text-[10px] text-slate-400 mt-1 font-bold">الجمعية 1 + الجمعية 2 + قسط التكييف</div>
             </div>
         </div>
 
         <!-- Cafe & Personal Treats Card -->
-        <div class="bg-slate-900/90 border border-amber-500/30 p-3.5 rounded-2xl shadow-sm flex flex-col justify-between relative overflow-hidden glow-amber">
-            <div class="flex justify-between items-center text-slate-400 mb-1.5">
-                <span class="text-xs font-bold text-amber-400 flex items-center gap-1.5">
-                    <i class="fa-solid fa-mug-hot"></i> القهاوي والخروجات
+        <div class="glass-card p-4 rounded-3xl shadow-xl flex flex-col justify-between relative overflow-hidden border-amber-500/30 glow-amber bg-gradient-to-br from-amber-950/20 to-slate-900/80">
+            <div class="flex justify-between items-center text-slate-400 mb-2">
+                <span class="text-xs font-black text-amber-300 flex items-center gap-1.5">
+                    <i class="fa-solid fa-mug-hot text-amber-400"></i> القهاوي والخروجات
                 </span>
-                <div class="w-7 h-7 rounded-xl bg-amber-500/10 border border-amber-500/20 text-amber-400 flex items-center justify-center text-xs">
+                <div class="w-8 h-8 rounded-2xl bg-amber-500/20 border border-amber-500/30 text-amber-300 flex items-center justify-center text-xs shadow-inner">
                     <i class="fa-solid fa-champagne-glasses"></i>
                 </div>
             </div>
             <div>
-                <div class="text-2xl font-black text-amber-400 tracking-tight" id="kpiCafeAmount">0 <span class="text-xs font-bold text-slate-500">ج.م</span></div>
-                <div class="text-[10px] text-slate-400 mt-1" id="kpiCafeSubtext">تدليل النفس والترفيه</div>
+                <div class="text-2xl sm:text-3xl font-black gradient-text-amber tracking-tight" id="kpiCafeAmount">0 <span class="text-xs font-bold text-slate-400">ج.م</span></div>
+                <div class="text-[10px] text-slate-400 mt-1 font-bold" id="kpiCafeSubtext">تدليل النفس والترفيه الشخصي</div>
             </div>
         </div>
 
     </section>
 
-    <!-- MONTHLY OBLIGATIONS CHECKLIST (الجمعيات وقسط التكييف) -->
-    <section class="bg-slate-900/90 border border-slate-800 rounded-2xl p-4 shadow-sm">
-        <div class="flex items-center justify-between mb-3 border-b border-slate-800 pb-2">
+    <!-- MONTHLY OBLIGATIONS CHECKLIST -->
+    <section class="glass-card border border-slate-800/80 rounded-3xl p-4 shadow-xl">
+        <div class="flex items-center justify-between mb-3.5 border-b border-slate-800/80 pb-2.5">
             <h3 class="font-black text-white text-xs sm:text-sm flex items-center gap-2">
                 <i class="fa-solid fa-list-check text-indigo-400"></i>
-                <span>متابعة الالتزامات الثابتة لشهر (<span id="checklistMonthText">الحالي</span>)</span>
+                <span>متابعة الالتزامات الثابتة لشهر (<span id="checklistMonthText" class="text-indigo-300">الحالي</span>)</span>
             </h3>
-            <span class="text-[10px] text-slate-400">اضغط علم صح عند الدفع لتسجيلها تلقائياً</span>
+            <span class="text-[10px] text-slate-400 font-bold bg-slate-900 px-2.5 py-1 rounded-xl border border-slate-800">اضغط للتأكيد وتسجيل السداد</span>
         </div>
 
         <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
             
             <!-- Gamayya 1 -->
-            <div id="checkCardG1" class="bg-slate-800/60 border border-slate-700/80 p-3 rounded-xl flex items-center justify-between transition-all">
-                <div class="flex items-center gap-2.5">
-                    <div class="w-8 h-8 rounded-lg bg-cyan-500/20 text-cyan-300 border border-cyan-500/30 flex items-center justify-center text-sm font-bold">
+            <div id="checkCardG1" class="bg-slate-900/90 border border-slate-800/80 p-3.5 rounded-2xl flex items-center justify-between transition-all hover:border-violet-500/40">
+                <div class="flex items-center gap-3">
+                    <div class="w-10 h-10 rounded-2xl bg-violet-500/20 text-violet-300 border border-violet-500/30 flex items-center justify-center text-base font-bold shadow-sm">
                         🤝
                     </div>
                     <div>
-                        <h4 class="text-xs font-extrabold text-white">الجمعية الأولى</h4>
-                        <p class="text-[10px] text-slate-400">قسط شهري متفق عليه</p>
+                        <h4 class="text-xs font-black text-white">الجمعية الأولى</h4>
+                        <p class="text-[10px] text-slate-400 font-bold">1,000 ج.م شهرياً</p>
                     </div>
                 </div>
-                <button onclick="toggleObligation('الجمعية الأولى')" id="btnCheckG1" class="px-3 py-1.5 rounded-lg text-xs font-extrabold transition-all bg-slate-700 text-slate-300 hover:bg-emerald-600 hover:text-white">
+                <button onclick="toggleObligation('الجمعية الأولى')" id="btnCheckG1" class="px-3.5 py-1.5 rounded-xl text-xs font-black transition-all bg-slate-800 text-slate-300 hover:bg-emerald-600 hover:text-white border border-slate-700">
                     لم تدفع ❌
                 </button>
             </div>
 
             <!-- Gamayya 2 -->
-            <div id="checkCardG2" class="bg-slate-800/60 border border-slate-700/80 p-3 rounded-xl flex items-center justify-between transition-all">
-                <div class="flex items-center gap-2.5">
-                    <div class="w-8 h-8 rounded-lg bg-indigo-500/20 text-indigo-300 border border-indigo-500/30 flex items-center justify-center text-sm font-bold">
+            <div id="checkCardG2" class="bg-slate-900/90 border border-slate-800/80 p-3.5 rounded-2xl flex items-center justify-between transition-all hover:border-purple-500/40">
+                <div class="flex items-center gap-3">
+                    <div class="w-10 h-10 rounded-2xl bg-purple-500/20 text-purple-300 border border-purple-500/30 flex items-center justify-center text-base font-bold shadow-sm">
                         🤝
                     </div>
                     <div>
-                        <h4 class="text-xs font-extrabold text-white">الجمعية الثانية</h4>
-                        <p class="text-[10px] text-slate-400">قسط شهري ثابت</p>
+                        <h4 class="text-xs font-black text-white">الجمعية الثانية</h4>
+                        <p class="text-[10px] text-slate-400 font-bold">1,500 ج.م شهرياً</p>
                     </div>
                 </div>
-                <button onclick="toggleObligation('الجمعية الثانية')" id="btnCheckG2" class="px-3 py-1.5 rounded-lg text-xs font-extrabold transition-all bg-slate-700 text-slate-300 hover:bg-emerald-600 hover:text-white">
+                <button onclick="toggleObligation('الجمعية الثانية')" id="btnCheckG2" class="px-3.5 py-1.5 rounded-xl text-xs font-black transition-all bg-slate-800 text-slate-300 hover:bg-emerald-600 hover:text-white border border-slate-700">
                     لم تدفع ❌
                 </button>
             </div>
 
             <!-- AC Installment -->
-            <div id="checkCardAC" class="bg-slate-800/60 border border-slate-700/80 p-3 rounded-xl flex items-center justify-between transition-all">
-                <div class="flex items-center gap-2.5">
-                    <div class="w-8 h-8 rounded-lg bg-sky-500/20 text-sky-300 border border-sky-500/30 flex items-center justify-center text-sm font-bold">
+            <div id="checkCardAC" class="bg-slate-900/90 border border-slate-800/80 p-3.5 rounded-2xl flex items-center justify-between transition-all hover:border-cyan-500/40">
+                <div class="flex items-center gap-3">
+                    <div class="w-10 h-10 rounded-2xl bg-cyan-500/20 text-cyan-300 border border-cyan-500/30 flex items-center justify-center text-base font-bold shadow-sm">
                         ❄️
                     </div>
                     <div>
-                        <h4 class="text-xs font-extrabold text-white">قسط التكييف</h4>
-                        <p class="text-[10px] text-slate-400">قسط أجهزة وتجهيزات</p>
+                        <h4 class="text-xs font-black text-white">قسط التكييف</h4>
+                        <p class="text-[10px] text-slate-400 font-bold">850 ج.م شهرياً</p>
                     </div>
                 </div>
-                <button onclick="toggleObligation('قسط التكييف')" id="btnCheckAC" class="px-3 py-1.5 rounded-lg text-xs font-extrabold transition-all bg-slate-700 text-slate-300 hover:bg-emerald-600 hover:text-white">
+                <button onclick="toggleObligation('قسط التكييف')" id="btnCheckAC" class="px-3.5 py-1.5 rounded-xl text-xs font-black transition-all bg-slate-800 text-slate-300 hover:bg-emerald-600 hover:text-white border border-slate-700">
                     لم تدفع ❌
                 </button>
             </div>
@@ -327,27 +378,27 @@
         <div class="lg:col-span-4 flex flex-col gap-4">
             
             <!-- Add / Edit Transaction Card -->
-            <div class="bg-slate-900/90 p-4 rounded-2xl shadow-sm border border-slate-800 relative">
+            <div class="glass-card p-4 sm:p-5 rounded-3xl shadow-xl border border-slate-800 relative">
                 
-                <div class="flex items-center justify-between pb-3 border-b border-slate-800 mb-3">
+                <div class="flex items-center justify-between pb-3 border-b border-slate-800 mb-3.5">
                     <h2 class="font-extrabold text-white text-xs sm:text-sm flex items-center gap-2" id="formHeaderTitle">
-                        <i class="fa-solid fa-circle-plus text-emerald-400"></i>
+                        <i class="fa-solid fa-circle-plus text-violet-400"></i>
                         <span>تسجيل مصروف أو إضافة للتحويشة</span>
                     </h2>
                     <span id="editingBadge" class="hidden text-[10px] bg-amber-500/20 text-amber-300 border border-amber-500/30 px-2 py-0.5 rounded-full font-bold">تعديل ✏️</span>
                 </div>
 
-                <form id="addTransactionForm" onsubmit="handleFormSubmit(event)" class="space-y-3">
+                <form id="addTransactionForm" onsubmit="handleFormSubmit(event)" class="space-y-3.5">
                     <input type="hidden" id="editingDocId" value="">
 
                     <!-- Transaction Type Toggle (Expense vs Deposit) -->
                     <div>
-                        <label class="block text-xs font-bold text-slate-300 mb-1">نوع العملية *</label>
+                        <label class="block text-xs font-bold text-slate-300 mb-1.5">نوع العملية *</label>
                         <div class="grid grid-cols-2 gap-2">
-                            <button type="button" onclick="setTxType('EXPENSE')" id="btnTypeExpense" class="type-btn py-2 rounded-xl font-extrabold text-xs flex items-center justify-center gap-2 border border-rose-500 bg-rose-600/30 text-rose-200 shadow-sm transition-all active:scale-95">
+                            <button type="button" onclick="setTxType('EXPENSE')" id="btnTypeExpense" class="type-btn py-2.5 rounded-2xl font-extrabold text-xs flex items-center justify-center gap-2 border border-rose-500 bg-rose-600/30 text-rose-200 shadow-sm transition-all active:scale-95">
                                 <i class="fa-solid fa-minus-circle"></i> مصروف خروج
                             </button>
-                            <button type="button" onclick="setTxType('SAVING')" id="btnTypeSaving" class="type-btn py-2 rounded-xl font-extrabold text-xs flex items-center justify-center gap-2 border border-slate-700 text-slate-400 bg-slate-800 transition-all active:scale-95">
+                            <button type="button" onclick="setTxType('SAVING')" id="btnTypeSaving" class="type-btn py-2.5 rounded-2xl font-extrabold text-xs flex items-center justify-center gap-2 border border-slate-700 text-slate-400 bg-slate-900 transition-all active:scale-95">
                                 <i class="fa-solid fa-plus-circle"></i> إيداع بالتحويشة
                             </button>
                         </div>
@@ -356,18 +407,18 @@
                     <!-- Item Name / Description -->
                     <div>
                         <label class="block text-xs font-bold text-slate-300 mb-1">البيان / الوصف *</label>
-                        <input type="text" id="itemName" required placeholder="مثلاً: مواصلات شغل، القهوة مع صحابي، قسط..." class="w-full bg-slate-800/80 border border-slate-700 rounded-xl px-3 py-2 text-xs font-semibold text-white focus:outline-none focus:border-emerald-500 transition-all placeholder:text-slate-500">
+                        <input type="text" id="itemName" required placeholder="مثلاً: مواصلات شغل، القهوة مع صحابي، قسط..." class="w-full bg-slate-900/90 border border-slate-700/80 rounded-2xl px-3.5 py-2.5 text-xs font-semibold text-white focus:outline-none focus:border-violet-500 transition-all placeholder:text-slate-500 shadow-inner">
                     </div>
 
                     <!-- Amount & Date -->
                     <div class="grid grid-cols-2 gap-2">
                         <div>
                             <label class="block text-xs font-bold text-slate-300 mb-1">المبلغ (ج.م) *</label>
-                            <input type="number" step="0.5" id="itemAmount" required placeholder="0.00" class="w-full bg-slate-800/80 border border-slate-700 rounded-xl px-3 py-2 text-xs font-bold text-white focus:outline-none focus:border-emerald-500 transition-all placeholder:text-slate-500">
+                            <input type="number" step="0.5" id="itemAmount" required placeholder="0.00" class="w-full bg-slate-900/90 border border-slate-700/80 rounded-2xl px-3.5 py-2.5 text-xs font-bold text-white focus:outline-none focus:border-violet-500 transition-all placeholder:text-slate-500 shadow-inner">
                         </div>
                         <div>
                             <label class="block text-xs font-bold text-slate-300 mb-1">التاريخ *</label>
-                            <input type="date" id="itemDate" required class="w-full bg-slate-800/80 border border-slate-700 rounded-xl px-2.5 py-2 text-xs font-semibold text-slate-200 focus:outline-none focus:border-emerald-500">
+                            <input type="date" id="itemDate" required class="w-full bg-slate-900/90 border border-slate-700/80 rounded-2xl px-3 py-2.5 text-xs font-semibold text-slate-200 focus:outline-none focus:border-violet-500 shadow-inner">
                         </div>
                     </div>
 
@@ -375,7 +426,7 @@
                     <div class="grid grid-cols-2 gap-2">
                         <div>
                             <label class="block text-xs font-bold text-slate-300 mb-1">البند / التصنيف *</label>
-                            <select id="itemCategory" class="w-full bg-slate-800/80 border border-slate-700 rounded-xl px-2.5 py-2 text-xs font-semibold text-slate-200 focus:outline-none focus:border-emerald-500">
+                            <select id="itemCategory" class="w-full bg-slate-900/90 border border-slate-700/80 rounded-2xl px-3 py-2.5 text-xs font-semibold text-slate-200 focus:outline-none focus:border-indigo-500 shadow-inner">
                                 <option value="مواصلات">🚗 مواصلات وتنقلات</option>
                                 <option value="الجمعية الأولى">🤝 الجمعية الأولى</option>
                                 <option value="الجمعية الثانية">🤝 الجمعية الثانية</option>
@@ -389,7 +440,7 @@
 
                         <div>
                             <label class="block text-xs font-bold text-slate-300 mb-1">الشهر *</label>
-                            <select id="itemMonth" class="w-full bg-slate-800/80 border border-slate-700 rounded-xl px-2.5 py-2 text-xs font-semibold text-slate-200 focus:outline-none focus:border-emerald-500">
+                            <select id="itemMonth" class="w-full bg-slate-900/90 border border-slate-700/80 rounded-2xl px-3 py-2.5 text-xs font-semibold text-slate-200 focus:outline-none focus:border-indigo-500 shadow-inner">
                                 <option value="يناير">يناير</option>
                                 <option value="فبراير">فبراير</option>
                                 <option value="مارس">مارس</option>
@@ -407,12 +458,12 @@
                     </div>
 
                     <div class="flex gap-2 pt-1">
-                        <button type="submit" id="btnSubmitExpense" class="flex-1 bg-gradient-to-r from-emerald-600 via-teal-600 to-indigo-600 hover:opacity-90 text-white font-extrabold py-2.5 rounded-xl shadow-lg transition-all active:scale-95 text-xs flex items-center justify-center gap-2">
+                        <button type="submit" id="btnSubmitExpense" class="flex-1 bg-gradient-to-r from-violet-600 via-indigo-600 to-emerald-500 hover:opacity-95 text-white font-black py-3 rounded-2xl shadow-xl transition-all active:scale-95 text-xs flex items-center justify-center gap-2 glow-violet">
                             <i class="fa-solid fa-check text-sm"></i>
                             <span id="btnSubmitText">حفظ العملية 💾</span>
                         </button>
                         
-                        <button type="button" id="btnCancelEdit" onclick="cancelEditMode()" class="hidden bg-slate-800 hover:bg-slate-700 text-slate-300 font-bold px-3 py-2.5 rounded-xl text-xs transition-all active:scale-95">
+                        <button type="button" id="btnCancelEdit" onclick="cancelEditMode()" class="hidden bg-slate-800 hover:bg-slate-700 text-slate-300 font-bold px-4 py-3 rounded-2xl text-xs transition-all active:scale-95 border border-slate-700">
                             إلغاء
                         </button>
                     </div>
@@ -420,13 +471,13 @@
             </div>
 
             <!-- Category Distribution Donut Chart Card -->
-            <div class="bg-slate-900/90 p-4 rounded-2xl shadow-sm border border-slate-800 flex flex-col justify-between flex-1">
+            <div class="glass-card p-4 rounded-3xl shadow-xl border border-slate-800 flex flex-col justify-between flex-1">
                 <div class="flex items-center justify-between mb-2">
                     <h3 class="font-extrabold text-white text-xs flex items-center gap-2">
-                        <i class="fa-solid fa-chart-pie text-emerald-400"></i>
+                        <i class="fa-solid fa-chart-pie text-violet-400"></i>
                         توزيع المصاريف حسب البند
                     </h3>
-                    <span class="text-[10px] text-slate-400">نسبة الميزانية</span>
+                    <span class="text-[10px] text-slate-400 font-bold">نسبة الميزانية</span>
                 </div>
                 <div class="relative h-56 w-full flex items-center justify-center">
                     <canvas id="categoryPieChart"></canvas>
@@ -439,7 +490,7 @@
         <div class="lg:col-span-8 flex flex-col gap-4">
             
             <!-- Histogram Bar Chart Card -->
-            <div class="bg-slate-900/90 p-4 rounded-2xl shadow-sm border border-slate-800">
+            <div class="glass-card p-4 sm:p-5 rounded-3xl shadow-xl border border-slate-800">
                 <div class="flex items-center justify-between mb-2">
                     <div>
                         <h3 class="font-extrabold text-white text-xs sm:text-sm flex items-center gap-2">
@@ -456,8 +507,8 @@
             </div>
 
             <!-- Detailed History Table & Search -->
-            <div class="bg-slate-900/90 p-4 rounded-2xl shadow-sm border border-slate-800 flex flex-col flex-1">
-                <div class="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-2 mb-3">
+            <div class="glass-card p-4 sm:p-5 rounded-3xl shadow-xl border border-slate-800 flex flex-col flex-1">
+                <div class="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-2.5 mb-3.5">
                     <h3 class="font-extrabold text-white text-xs sm:text-sm flex items-center gap-2">
                         <i class="fa-solid fa-receipt text-emerald-400"></i>
                         سجل الحركات المسجلة
@@ -465,24 +516,24 @@
 
                     <!-- Search Box -->
                     <div class="relative w-full sm:w-64">
-                        <i class="fa-solid fa-magnifying-glass absolute right-3 top-1/2 -translate-y-1/2 text-slate-500 text-xs"></i>
-                        <input type="text" id="searchInput" oninput="renderTable()" placeholder="بحث في الملاحظات والبيان..." class="w-full bg-slate-800/80 border border-slate-700 rounded-xl pr-8 pl-3 py-1.5 text-xs text-white focus:outline-none focus:border-emerald-500 placeholder:text-slate-500">
+                        <i class="fa-solid fa-magnifying-glass absolute right-3.5 top-1/2 -translate-y-1/2 text-slate-500 text-xs"></i>
+                        <input type="text" id="searchInput" oninput="renderTable()" placeholder="بحث في الملاحظات والبيان..." class="w-full bg-slate-900/90 border border-slate-700/80 rounded-2xl pr-9 pl-3 py-2 text-xs text-white focus:outline-none focus:border-violet-500 placeholder:text-slate-500 shadow-inner">
                     </div>
                 </div>
 
                 <!-- Scrollable Table -->
-                <div class="overflow-x-auto flex-1 max-h-80">
+                <div class="overflow-x-auto flex-1 max-h-80 rounded-2xl border border-slate-800/80">
                     <table class="w-full text-right text-xs">
-                        <thead class="sticky top-0 bg-slate-800 text-slate-300 font-bold border-b border-slate-700">
+                        <thead class="sticky top-0 bg-slate-900 text-slate-300 font-bold border-b border-slate-800">
                             <tr>
-                                <th class="p-2.5 rounded-r-xl">التاريخ</th>
-                                <th class="p-2.5">البند</th>
-                                <th class="p-2.5">البيان / التفاصيل</th>
-                                <th class="p-2.5">المبلغ</th>
-                                <th class="p-2.5 text-center rounded-l-xl">إجراءات</th>
+                                <th class="p-3">التاريخ</th>
+                                <th class="p-3">البند</th>
+                                <th class="p-3">البيان / التفاصيل</th>
+                                <th class="p-3">المبلغ</th>
+                                <th class="p-3 text-center">إجراءات</th>
                             </tr>
                         </thead>
-                        <tbody id="transactionsTableBody" class="divide-y divide-slate-800 text-slate-200">
+                        <tbody id="transactionsTableBody" class="divide-y divide-slate-800/80 text-slate-200">
                             <!-- Injected via JavaScript -->
                         </tbody>
                     </table>
@@ -494,59 +545,63 @@
     </main>
 
     <!-- Mobile Fixed Bottom Action Bar -->
-    <div class="md:hidden fixed bottom-3 left-3 right-3 bg-slate-900/95 backdrop-blur-lg border border-slate-700/80 rounded-2xl p-2.5 flex items-center justify-around z-40 shadow-2xl">
-        <button onclick="window.scrollTo({top: 0, behavior: 'smooth'})" class="flex flex-col items-center text-slate-300 hover:text-white text-[10px] font-bold gap-0.5">
-            <i class="fa-solid fa-plus-circle text-emerald-400 text-base"></i>
+    <div class="md:hidden fixed bottom-3 left-3 right-3 bg-slate-900/95 backdrop-blur-xl border border-slate-800 rounded-3xl p-2.5 flex items-center justify-around z-40 shadow-2xl glow-violet">
+        <button onclick="window.scrollTo({top: 0, behavior: 'smooth'})" class="flex flex-col items-center text-slate-300 hover:text-white text-[10px] font-bold gap-1">
+            <i class="fa-solid fa-plus-circle text-violet-400 text-lg"></i>
             <span>إضافة</span>
         </button>
-        <button onclick="openTargetModal()" class="flex flex-col items-center text-slate-300 hover:text-white text-[10px] font-bold gap-0.5">
-            <i class="fa-solid fa-bullseye text-amber-400 text-base"></i>
+        <button onclick="triggerCloudSyncManual()" class="flex flex-col items-center text-slate-300 hover:text-white text-[10px] font-bold gap-1">
+            <i class="fa-solid fa-rotate text-indigo-400 text-lg"></i>
+            <span>مزامنة</span>
+        </button>
+        <button onclick="openTargetModal()" class="flex flex-col items-center text-slate-300 hover:text-white text-[10px] font-bold gap-1">
+            <i class="fa-solid fa-bullseye text-amber-400 text-lg"></i>
             <span>الهدف</span>
         </button>
-        <button onclick="exportToExcel()" class="flex flex-col items-center text-slate-300 hover:text-white text-[10px] font-bold gap-0.5">
-            <i class="fa-solid fa-file-excel text-emerald-400 text-base"></i>
+        <button onclick="exportToExcel()" class="flex flex-col items-center text-slate-300 hover:text-white text-[10px] font-bold gap-1">
+            <i class="fa-solid fa-file-excel text-emerald-400 text-lg"></i>
             <span>إكسيل</span>
         </button>
-        <button onclick="lockApp()" class="flex flex-col items-center text-slate-300 hover:text-white text-[10px] font-bold gap-0.5">
-            <i class="fa-solid fa-lock text-rose-400 text-base"></i>
+        <button onclick="lockApp()" class="flex flex-col items-center text-slate-300 hover:text-white text-[10px] font-bold gap-1">
+            <i class="fa-solid fa-lock text-rose-400 text-lg"></i>
             <span>قفل</span>
         </button>
     </div>
 
     <!-- Savings Target Modal -->
-    <div id="targetModal" class="fixed inset-0 z-50 bg-slate-950/80 backdrop-blur-sm hidden items-center justify-center p-4">
-        <div class="bg-slate-900 border border-slate-800 rounded-3xl p-6 w-full max-w-sm text-center shadow-2xl relative">
+    <div id="targetModal" class="fixed inset-0 z-50 bg-slate-950/80 backdrop-blur-md hidden items-center justify-center p-4">
+        <div class="bg-slate-900 border border-slate-800 rounded-3xl p-6 w-full max-w-sm text-center shadow-2xl relative glow-emerald">
             <div class="w-12 h-12 rounded-2xl bg-emerald-500/20 text-emerald-400 flex items-center justify-center text-xl mx-auto mb-3 border border-emerald-500/30">
                 <i class="fa-solid fa-bullseye"></i>
             </div>
             <h3 class="font-extrabold text-white text-sm mb-1">تعديل هدف التحويشة</h3>
             <p class="text-xs text-slate-400 mb-4">حدد المبلغ المطلوب الوصول إليه لتتبع نسبة الإنجاز</p>
-            <input type="number" id="targetInput" class="w-full bg-slate-800 border border-slate-700 rounded-xl p-3 text-center text-lg font-bold text-emerald-300 focus:outline-none focus:border-emerald-500 mb-4" placeholder="مثال: 50000">
+            <input type="number" id="targetInput" class="w-full bg-slate-950 border border-slate-700 rounded-2xl p-3 text-center text-lg font-bold text-emerald-300 focus:outline-none focus:border-emerald-500 mb-4 shadow-inner" placeholder="مثال: 50000">
             <div class="grid grid-cols-2 gap-2">
-                <button onclick="closeTargetModal()" class="py-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs font-bold">إلغاء</button>
-                <button onclick="saveTargetGoal()" class="py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-bold">حفظ الهدف 🎯</button>
+                <button onclick="closeTargetModal()" class="py-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs font-bold border border-slate-700">إلغاء</button>
+                <button onclick="saveTargetGoal()" class="py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-bold shadow-md">حفظ الهدف 🎯</button>
             </div>
         </div>
     </div>
 
     <!-- Custom Delete Confirmation Modal -->
-    <div id="deleteModal" class="fixed inset-0 z-50 bg-slate-950/80 backdrop-blur-sm hidden items-center justify-center p-4">
-        <div class="bg-slate-900 border border-slate-800 rounded-2xl p-5 w-full max-w-sm text-center shadow-xl">
-            <div class="w-12 h-12 rounded-full bg-rose-500/20 text-rose-400 flex items-center justify-center text-xl mx-auto mb-3">
+    <div id="deleteModal" class="fixed inset-0 z-50 bg-slate-950/80 backdrop-blur-md hidden items-center justify-center p-4">
+        <div class="bg-slate-900 border border-slate-800 rounded-3xl p-6 w-full max-w-sm text-center shadow-xl">
+            <div class="w-12 h-12 rounded-2xl bg-rose-500/20 text-rose-400 flex items-center justify-center text-xl mx-auto mb-3 border border-rose-500/30">
                 <i class="fa-solid fa-trash-can"></i>
             </div>
             <h3 class="font-extrabold text-white text-sm mb-1">تأكيد الحذف</h3>
             <p class="text-xs text-slate-400 mb-5">هل أنت متأكد من حذف هذه الحركة؟</p>
             <div class="grid grid-cols-2 gap-2">
-                <button onclick="closeDeleteModal()" class="py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs font-bold">إلغاء</button>
-                <button onclick="confirmDeleteExpense()" class="py-2 rounded-xl bg-rose-600 hover:bg-rose-500 text-white text-xs font-bold">نعم، إحذف</button>
+                <button onclick="closeDeleteModal()" class="py-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs font-bold border border-slate-700">إلغاء</button>
+                <button onclick="confirmDeleteExpense()" class="py-2.5 rounded-xl bg-rose-600 hover:bg-rose-500 text-white text-xs font-bold shadow-md">نعم، إحذف</button>
             </div>
         </div>
     </div>
 
     <!-- Toast Notification -->
-    <div id="toast" class="fixed bottom-16 sm:bottom-5 left-1/2 -translate-x-1/2 bg-slate-800 border border-slate-700 text-white px-4 py-2.5 rounded-2xl shadow-2xl text-xs font-bold flex items-center gap-2 opacity-0 pointer-events-none transition-all z-50">
-        <i id="toastIcon" class="fa-solid fa-circle-check text-emerald-400"></i>
+    <div id="toast" class="fixed bottom-20 sm:bottom-6 left-1/2 -translate-x-1/2 bg-slate-900/90 border border-slate-700 text-white px-5 py-3 rounded-2xl shadow-2xl text-xs font-bold flex items-center gap-2.5 opacity-0 pointer-events-none transition-all z-50 backdrop-blur-lg">
+        <i id="toastIcon" class="fa-solid fa-circle-check text-emerald-400 text-base"></i>
         <span id="toastMsg">تم الحفظ بنجاح</span>
     </div>
 
@@ -557,7 +612,7 @@
         window.pendingDeleteId = null;
         window.savingsGoal = parseFloat(localStorage.getItem('my_savings_goal')) || 50000;
         
-        // PIN security key
+        // PIN security key (PIN: 2607)
         const PIN_KEY = 'personal_wallet_pin_unlocked';
 
         function triggerHaptic() {
@@ -608,12 +663,12 @@
             const categorySelect = document.getElementById('itemCategory');
 
             if (type === 'EXPENSE') {
-                btnExp.className = "type-btn py-2 rounded-xl font-extrabold text-xs flex items-center justify-center gap-2 border border-rose-500 bg-rose-600/30 text-rose-200 shadow-sm transition-all active:scale-95";
-                btnSav.className = "type-btn py-2 rounded-xl font-extrabold text-xs flex items-center justify-center gap-2 border border-slate-700 text-slate-400 bg-slate-800 transition-all active:scale-95";
+                btnExp.className = "type-btn py-2.5 rounded-2xl font-extrabold text-xs flex items-center justify-center gap-2 border border-rose-500 bg-rose-600/30 text-rose-200 shadow-sm transition-all active:scale-95";
+                btnSav.className = "type-btn py-2.5 rounded-2xl font-extrabold text-xs flex items-center justify-center gap-2 border border-slate-700 text-slate-400 bg-slate-900 transition-all active:scale-95";
                 if (categorySelect.value === 'تحويشة ومدخرات') categorySelect.value = 'مواصلات';
             } else {
-                btnExp.className = "type-btn py-2 rounded-xl font-extrabold text-xs flex items-center justify-center gap-2 border border-slate-700 text-slate-400 bg-slate-800 transition-all active:scale-95";
-                btnSav.className = "type-btn py-2 rounded-xl font-extrabold text-xs flex items-center justify-center gap-2 border border-emerald-500 bg-emerald-600/30 text-emerald-200 shadow-sm transition-all active:scale-95";
+                btnExp.className = "type-btn py-2.5 rounded-2xl font-extrabold text-xs flex items-center justify-center gap-2 border border-slate-700 text-slate-400 bg-slate-900 transition-all active:scale-95";
+                btnSav.className = "type-btn py-2.5 rounded-2xl font-extrabold text-xs flex items-center justify-center gap-2 border border-emerald-500 bg-emerald-600/30 text-emerald-200 shadow-sm transition-all active:scale-95";
                 categorySelect.value = 'تحويشة ومدخرات';
             }
         }
@@ -621,10 +676,10 @@
         // Categories metadata with colors and icons
         const categoriesMap = {
             'مواصلات': { icon: 'fa-car-side', color: 'bg-cyan-500/20 text-cyan-300 border-cyan-500/30', chartColor: '#06b6d4' },
-            'الجمعية الأولى': { icon: 'fa-handshake', color: 'bg-indigo-500/20 text-indigo-300 border-indigo-500/30', chartColor: '#6366f1' },
+            'الجمعية الأولى': { icon: 'fa-handshake', color: 'bg-violet-500/20 text-violet-300 border-violet-500/30', chartColor: '#8b5cf6' },
             'الجمعية الثانية': { icon: 'fa-handshake-simple', color: 'bg-purple-500/20 text-purple-300 border-purple-500/30', chartColor: '#a855f7' },
             'قسط التكييف': { icon: 'fa-snowflake', color: 'bg-sky-500/20 text-sky-300 border-sky-500/30', chartColor: '#0284c7' },
-            'قهوة وخروجات': { icon: 'fa-mug-saucer', color: 'bg-amber-500/20 text-amber-300 border-amber-500/30', chartColor: '#d97706' },
+            'قهوة وخروجات': { icon: 'fa-mug-saucer', color: 'bg-amber-500/20 text-amber-300 border-amber-500/30', chartColor: '#f59e0b' },
             'حاجة بحبها': { icon: 'fa-gift', color: 'bg-rose-500/20 text-rose-300 border-rose-500/30', chartColor: '#f43f5e' },
             'تحويشة ومدخرات': { icon: 'fa-piggy-bank', color: 'bg-emerald-500/20 text-emerald-300 border-emerald-500/30', chartColor: '#10b981' },
             'أخرى': { icon: 'fa-bag-shopping', color: 'bg-slate-700/50 text-slate-300 border-slate-600', chartColor: '#64748b' }
@@ -803,18 +858,20 @@
             const existingIndex = window.transactions.findIndex(x => x.category === categoryName && x.month === selectedMonth);
 
             if (existingIndex !== -1) {
-                // If exists, remove it (Mark Unpaid)
+                const removedItem = window.transactions[existingIndex];
                 window.transactions.splice(existingIndex, 1);
+                if (window.deleteTxFromCloud) {
+                    window.deleteTxFromCloud(removedItem.id);
+                }
                 showToast(`تم إلغاء سداد ${categoryName}`);
             } else {
-                // Add default transaction for this obligation
                 let amount = 1000;
                 if (categoryName === 'الجمعية الأولى') amount = 1000;
                 if (categoryName === 'الجمعية الثانية') amount = 1500;
                 if (categoryName === 'قسط التكييف') amount = 850;
 
                 const today = new Date().toISOString().split('T')[0];
-                window.transactions.unshift({
+                const newObligation = {
                     id: 'tx_' + Date.now(),
                     name: `سداد ${categoryName} لشهر ${selectedMonth}`,
                     amount: amount,
@@ -822,7 +879,11 @@
                     category: categoryName,
                     month: selectedMonth,
                     type: 'EXPENSE'
-                });
+                };
+                window.transactions.unshift(newObligation);
+                if (window.saveTxToCloud) {
+                    window.saveTxToCloud(newObligation);
+                }
                 showToast(`تم تسديد ${categoryName} بنجاح ✅`);
             }
 
@@ -918,12 +979,12 @@
             const btn = document.getElementById(btnId);
 
             if (isPaid) {
-                card.className = "bg-emerald-950/40 border border-emerald-500/50 p-3 rounded-xl flex items-center justify-between transition-all";
-                btn.className = "px-3 py-1.5 rounded-lg text-xs font-extrabold transition-all bg-emerald-600 text-white shadow-md";
+                card.className = "bg-emerald-950/40 border border-emerald-500/50 p-3.5 rounded-2xl flex items-center justify-between transition-all";
+                btn.className = "px-3.5 py-1.5 rounded-xl text-xs font-extrabold transition-all bg-emerald-600 text-white shadow-md border border-emerald-400/30";
                 btn.textContent = "تم الدفع ✅";
             } else {
-                card.className = "bg-slate-800/60 border border-slate-700/80 p-3 rounded-xl flex items-center justify-between transition-all";
-                btn.className = "px-3 py-1.5 rounded-lg text-xs font-extrabold transition-all bg-slate-700 text-slate-300 hover:bg-emerald-600 hover:text-white";
+                card.className = "bg-slate-900/80 border border-slate-800 p-3.5 rounded-2xl flex items-center justify-between transition-all hover:border-violet-500/30";
+                btn.className = "px-3.5 py-1.5 rounded-xl text-xs font-extrabold transition-all bg-slate-800 text-slate-300 hover:bg-emerald-600 hover:text-white border border-slate-700";
                 btn.textContent = "لم تدفع ❌";
             }
 
@@ -955,8 +1016,10 @@
                         label: 'المبلغ (ج.م)',
                         data: dataValues,
                         backgroundColor: bgColors,
-                        borderRadius: 8,
+                        borderRadius: 12,
                         borderSkipped: false,
+                        borderWidth: 1,
+                        borderColor: 'rgba(255, 255, 255, 0.15)'
                     }]
                 },
                 options: {
@@ -966,12 +1029,12 @@
                     scales: {
                         y: {
                             beginAtZero: true,
-                            grid: { color: '#1e293b' },
+                            grid: { color: 'rgba(255, 255, 255, 0.05)' },
                             ticks: { color: '#94a3b8', font: { family: 'Cairo', size: 10 } }
                         },
                         x: {
                             grid: { display: false },
-                            ticks: { color: '#cbd5e1', font: { family: 'Cairo', size: 10, weight: 'bold' } }
+                            ticks: { color: '#e2e8f0', font: { family: 'Cairo', size: 10, weight: 'bold' } }
                         }
                     }
                 }
@@ -1009,7 +1072,7 @@
                         data: dataValues,
                         backgroundColor: colors,
                         borderWidth: 2,
-                        borderColor: '#0f172a'
+                        borderColor: '#0b0f19'
                     }]
                 },
                 options: {
@@ -1049,23 +1112,23 @@
                 const isSaving = item.category === 'تحويشة ومدخرات' || item.type === 'SAVING';
 
                 return `
-                    <tr class="hover:bg-slate-800/50 transition-colors">
-                        <td class="p-2.5 font-semibold text-slate-400 whitespace-nowrap">${item.date}</td>
-                        <td class="p-2.5 whitespace-nowrap">
-                            <span class="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-lg border ${catObj.color} font-bold text-[11px]">
+                    <tr class="hover:bg-slate-800/40 transition-colors">
+                        <td class="p-3 font-semibold text-slate-400 whitespace-nowrap">${item.date}</td>
+                        <td class="p-3 whitespace-nowrap">
+                            <span class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-xl border ${catObj.color} font-bold text-[11px]">
                                 <i class="fa-solid ${catObj.icon}"></i> ${item.category}
                             </span>
                         </td>
-                        <td class="p-2.5 font-extrabold text-white">${escapeHtml(item.name)}</td>
-                        <td class="p-2.5 font-black ${isSaving ? 'text-emerald-400' : 'text-rose-400'}">
+                        <td class="p-3 font-extrabold text-white">${escapeHtml(item.name)}</td>
+                        <td class="p-3 font-black ${isSaving ? 'text-emerald-400' : 'text-rose-400'}">
                             ${isSaving ? '+' : '-'}${item.amount} <span class="text-[10px] text-slate-400">ج.م</span>
                         </td>
-                        <td class="p-2.5 text-center whitespace-nowrap">
+                        <td class="p-3 text-center whitespace-nowrap">
                             <div class="inline-flex items-center gap-1">
-                                <button onclick="editExpense('${item.id}')" class="w-6 h-6 rounded-md text-slate-400 hover:text-amber-400 hover:bg-amber-500/10 inline-flex items-center justify-center transition-all" title="تعديل">
+                                <button onclick="editExpense('${item.id}')" class="w-7 h-7 rounded-lg text-slate-400 hover:text-amber-400 hover:bg-amber-500/10 inline-flex items-center justify-center transition-all" title="تعديل">
                                     <i class="fa-solid fa-pen-to-square text-xs"></i>
                                 </button>
-                                <button onclick="openDeleteModal('${item.id}')" class="w-6 h-6 rounded-md text-slate-400 hover:text-rose-400 hover:bg-rose-500/10 inline-flex items-center justify-center transition-all" title="حذف">
+                                <button onclick="openDeleteModal('${item.id}')" class="w-7 h-7 rounded-lg text-slate-400 hover:text-rose-400 hover:bg-rose-500/10 inline-flex items-center justify-center transition-all" title="حذف">
                                     <i class="fa-solid fa-trash-can text-xs"></i>
                                 </button>
                             </div>
@@ -1132,7 +1195,7 @@
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
         import { getAuth, signInAnonymously, signInWithCustomToken, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
-        import { getFirestore, doc, setDoc, collection, onSnapshot, deleteDoc } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+        import { getFirestore, doc, setDoc, collection, onSnapshot, deleteDoc, writeBatch } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
 
         const appId = typeof __app_id !== 'undefined' ? __app_id : 'my-wallet-app';
         const firebaseConfig = typeof __firebase_config !== 'undefined' ? JSON.parse(__firebase_config) : null;
@@ -1140,6 +1203,7 @@
         let db = null;
         let auth = null;
         let currentUser = null;
+        let isFirstSync = true;
 
         if (firebaseConfig) {
             const app = initializeApp(firebaseConfig);
@@ -1154,7 +1218,7 @@
                         await signInAnonymously(auth);
                     }
                 } catch(e) {
-                    console.error("Auth initialization error:", e);
+                    console.error("Auth init error:", e);
                 }
             }
 
@@ -1171,9 +1235,9 @@
         function setupRealtimeSync() {
             if (!db || !currentUser) return;
 
-            // Sync Transactions across all devices
+            // Listen to Transactions Collection
             const txColRef = collection(db, 'artifacts', appId, 'public', 'data', 'transactions');
-            onSnapshot(txColRef, (snapshot) => {
+            onSnapshot(txColRef, async (snapshot) => {
                 const cloudTxs = [];
                 snapshot.forEach(docSnap => {
                     cloudTxs.push({ id: docSnap.id, ...docSnap.data() });
@@ -1186,14 +1250,27 @@
                     if (typeof window.updateDashboard === 'function') {
                         window.updateDashboard();
                     }
+                } else if (isFirstSync && window.transactions && window.transactions.length > 0) {
+                    // Seed initial local transactions to cloud if cloud is empty
+                    try {
+                        const batch = writeBatch(db);
+                        window.transactions.forEach(item => {
+                            const docRef = doc(db, 'artifacts', appId, 'public', 'data', 'transactions', item.id);
+                            batch.set(docRef, item, { merge: true });
+                        });
+                        await batch.commit();
+                    } catch (err) {
+                        console.error("Error seeding cloud:", err);
+                    }
                 }
+                isFirstSync = false;
                 updateCloudBadge(true);
             }, (error) => {
                 console.error("Realtime Sync Error:", error);
                 updateCloudBadge(false);
             });
 
-            // Sync Savings Goal
+            // Listen to Savings Goal Setting
             const settingsDocRef = doc(db, 'artifacts', appId, 'public', 'data', 'settings', 'goal');
             onSnapshot(settingsDocRef, (docSnap) => {
                 if (docSnap.exists() && docSnap.data().savingsGoal) {
@@ -1202,6 +1279,8 @@
                     if (typeof window.updateDashboard === 'function') {
                         window.updateDashboard();
                     }
+                } else if (window.savingsGoal) {
+                    setDoc(settingsDocRef, { savingsGoal: window.savingsGoal }, { merge: true }).catch(console.error);
                 }
             }, (err) => console.error(err));
         }
@@ -1211,13 +1290,22 @@
             if (badge) {
                 if (isConnected) {
                     badge.innerHTML = `<span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span> متزامن مع الموبايل واللاب ☁️`;
-                    badge.className = "text-[11px] text-emerald-400 font-bold flex items-center gap-1.5 bg-emerald-500/10 px-2 py-0.5 rounded-lg border border-emerald-500/20";
+                    badge.className = "text-[11px] text-emerald-400 font-bold flex items-center gap-1.5 bg-emerald-500/10 px-2.5 py-0.5 rounded-xl border border-emerald-500/20";
                 } else {
                     badge.innerHTML = `<span class="w-2 h-2 rounded-full bg-amber-400"></span> حفظ محلي 📱`;
-                    badge.className = "text-[11px] text-amber-400 font-bold flex items-center gap-1.5 bg-amber-500/10 px-2 py-0.5 rounded-lg border border-amber-500/20";
+                    badge.className = "text-[11px] text-amber-400 font-bold flex items-center gap-1.5 bg-amber-500/10 px-2.5 py-0.5 rounded-xl border border-amber-500/20";
                 }
             }
         }
+
+        window.triggerCloudSyncManual = function() {
+            if (typeof window.updateDashboard === 'function') {
+                window.updateDashboard();
+            }
+            if (window.showToast) {
+                window.showToast('جاري تحديث المزامنة السحابية 🔄');
+            }
+        };
 
         window.saveTxToCloud = async function(txItem) {
             if (!db || !currentUser) return;
@@ -1230,7 +1318,7 @@
         };
 
         window.deleteTxFromCloud = async function(docId) {
-            if (!db || !currentUser) return;
+            if (!db || !currentUser) me;
             try {
                 const docRef = doc(db, 'artifacts', appId, 'public', 'data', 'transactions', docId);
                 await deleteDoc(docRef);
