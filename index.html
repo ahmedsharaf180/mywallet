@@ -1,0 +1,1253 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>محفظتي - مصاريفي وتحويشتي الشخصية</title>
+    
+    <!-- PWA & Mobile Native App Metas -->
+    <meta name="theme-color" content="#020617">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="application-name" content="محفظتي الشخصية">
+
+    <!-- App Icon (SVG Data URI) -->
+    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 512 512'><rect width='512' height='512' rx='120' fill='%23020617'/><path d='M160 180 C160 120, 352 120, 352 180 L352 360 C352 400, 160 400, 160 360 Z' fill='%2310b981'/><circle cx='256' cy='260' r='50' fill='%23f59e0b'/><path d='M210 140 H302 V180 H210 Z' fill='%2306b6d4'/></svg>">
+
+    <!-- Google Fonts - Cairo -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;600;700;800;900&display=swap" rel="stylesheet">
+    
+    <!-- FontAwesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- Chart.js CDN -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+    <!-- SheetJS (xlsx) for Excel Export -->
+    <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        cairo: ['Cairo', 'sans-serif'],
+                    },
+                    colors: {
+                        vault: {
+                            50: '#ecfdf5',
+                            500: '#10b981',
+                            600: '#059669',
+                            700: '#047857',
+                        },
+                        cafe: {
+                            500: '#d97706',
+                            600: '#b45309',
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+
+    <style>
+        body {
+            font-family: 'Cairo', sans-serif;
+            background-color: #020617;
+            color: #f8fafc;
+            user-select: none;
+            -webkit-user-select: none;
+            -webkit-tap-highlight-color: transparent;
+            touch-action: manipulation;
+        }
+        ::-webkit-scrollbar {
+            width: 5px;
+            height: 5px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #0f172a;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #334155;
+            border-radius: 4px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #475569;
+        }
+        input, select, button {
+            -webkit-appearance: none;
+        }
+        .glow-emerald {
+            box-shadow: 0 0 25px -5px rgba(16, 185, 129, 0.25);
+        }
+        .glow-amber {
+            box-shadow: 0 0 25px -5px rgba(245, 158, 11, 0.2);
+        }
+    </style>
+</head>
+<body class="min-h-screen flex flex-col p-2 sm:p-5 gap-4 bg-slate-950 text-slate-100 selection:bg-emerald-500 selection:text-white pb-20 sm:pb-6">
+
+    <!-- PASSWORD LOCK SCREEN OVERLAY (PIN: 1234 Default or customizable) -->
+    <div id="pinLockModal" class="fixed inset-0 z-50 bg-slate-950/95 backdrop-blur-md flex items-center justify-center p-4">
+        <div class="bg-slate-900 border border-slate-800 rounded-3xl p-6 sm:p-8 w-full max-w-sm text-center shadow-2xl relative overflow-hidden">
+            <div class="absolute -top-12 -right-12 w-32 h-32 bg-emerald-500/10 rounded-full blur-2xl"></div>
+            <div class="absolute -bottom-12 -left-12 w-32 h-32 bg-amber-500/10 rounded-full blur-2xl"></div>
+
+            <div class="w-16 h-16 rounded-2xl bg-gradient-to-tr from-emerald-600 via-teal-600 to-amber-500 flex items-center justify-center text-white text-2xl font-bold mx-auto mb-4 shadow-lg shadow-emerald-500/20">
+                <i class="fa-solid fa-piggy-bank"></i>
+            </div>
+
+            <h2 class="text-xl font-black text-white mb-1">محفظتي الشخصية</h2>
+            <p class="text-xs text-slate-400 font-semibold mb-6">أدخل الرقم السري للدخول</p>
+
+            <form onsubmit="handlePinSubmit(event)" class="space-y-4">
+                <div class="relative">
+                    <input type="password" maxlength="6" id="pinInput" placeholder="• • • •" class="w-full bg-slate-800/80 border border-slate-700 text-center text-2xl font-bold tracking-widest text-white py-3 rounded-2xl focus:outline-none focus:border-emerald-500 transition-all placeholder:text-slate-600">
+                </div>
+
+                <div id="pinErrorMsg" class="text-xs text-rose-400 font-bold hidden flex items-center justify-center gap-1">
+                    <i class="fa-solid fa-circle-exclamation"></i>
+                    <span>الرقم السري خاطئ، جرب تاني</span>
+                </div>
+
+                <button type="submit" class="w-full bg-gradient-to-r from-emerald-600 via-teal-600 to-amber-500 hover:opacity-90 text-white font-extrabold py-3 rounded-2xl shadow-lg transition-all active:scale-95 text-sm">
+                    افتح المحفظة <i class="fa-solid fa-key mr-1"></i>
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <!-- MAIN APP HEADER -->
+    <header class="bg-slate-900/90 backdrop-blur-md rounded-2xl p-3 sm:p-4 border border-slate-800 flex flex-col md:flex-row items-center justify-between gap-3 shrink-0 shadow-xl">
+        <div class="flex items-center justify-between w-full md:w-auto">
+            <div class="flex items-center gap-3">
+                <div class="w-11 h-11 rounded-2xl bg-gradient-to-tr from-emerald-500 via-teal-600 to-indigo-600 flex items-center justify-center text-white shadow-md text-xl font-bold glow-emerald">
+                    <i class="fa-solid fa-wallet"></i>
+                </div>
+                <div>
+                    <h1 class="font-extrabold text-white text-base sm:text-lg tracking-tight">محفظتي - مصاريفي وتحويشتي 👑</h1>
+                    <p class="text-[11px] text-slate-400 font-semibold mt-0.5 flex items-center gap-1.5">
+                        <span id="cloudSyncBadge" class="text-[11px] text-emerald-400 font-bold flex items-center gap-1.5 bg-emerald-500/10 px-2 py-0.5 rounded-lg border border-emerald-500/20">
+                            <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span> متزامن سحابياً ☁️
+                        </span>
+                        <span>متابعة المواصلات، الجمعيات، القسط، والقهاوي والتحويشة</span>
+                    </p>
+                </div>
+            </div>
+
+            <div class="flex items-center gap-1.5 md:hidden">
+                <button onclick="exportToExcel()" class="bg-slate-800 text-emerald-400 p-2.5 rounded-xl border border-slate-700 text-xs font-bold active:scale-95" title="تصدير إكسيل">
+                    <i class="fa-solid fa-file-excel"></i>
+                </button>
+                <button onclick="lockApp()" class="bg-slate-800 text-slate-300 p-2.5 rounded-xl border border-slate-700 text-xs font-bold active:scale-95" title="قفل">
+                    <i class="fa-solid fa-lock"></i>
+                </button>
+            </div>
+        </div>
+
+        <!-- Month Filter Selector & Controls -->
+        <div class="flex flex-wrap items-center gap-2 w-full md:w-auto justify-end">
+            <div class="flex items-center bg-slate-800/90 rounded-xl px-3 py-1.5 border border-slate-700 text-xs font-bold text-slate-300 w-full sm:w-auto">
+                <i class="fa-regular fa-calendar-check text-emerald-400 ml-2"></i>
+                <span class="ml-2 whitespace-nowrap">الشهر:</span>
+                <select id="filterMonthSelect" onchange="handleMonthChange()" class="bg-transparent font-extrabold text-emerald-300 focus:outline-none cursor-pointer w-full">
+                    <option value="ALL">🗓️ كل الشهور</option>
+                    <option value="يناير">يناير</option>
+                    <option value="فبراير">فبراير</option>
+                    <option value="مارس">مارس</option>
+                    <option value="أبريل">أبريل</option>
+                    <option value="مايو">مايو</option>
+                    <option value="يونيو">يونيو</option>
+                    <option value="يوليو">يوليو</option>
+                    <option value="أغسطس">أغسطس</option>
+                    <option value="سبتمبر">سبتمبر</option>
+                    <option value="أكتوبر">أكتوبر</option>
+                    <option value="نوفمبر">نوفمبر</option>
+                    <option value="ديسمبر">ديسمبر</option>
+                </select>
+            </div>
+
+            <button onclick="exportToExcel()" class="hidden md:flex bg-emerald-600/90 hover:bg-emerald-600 active:scale-95 text-white text-xs font-extrabold py-2 px-3 rounded-xl border border-emerald-500/30 transition-all items-center justify-center gap-1.5">
+                <i class="fa-solid fa-file-excel text-sm"></i>
+                <span>تصدير (XLSX)</span>
+            </button>
+
+            <button onclick="lockApp()" class="hidden md:flex bg-slate-800 hover:bg-slate-700 text-slate-300 hover:text-white p-2.5 rounded-xl border border-slate-700 text-xs font-bold items-center gap-1.5 transition-all active:scale-95">
+                <i class="fa-solid fa-lock text-rose-400"></i>
+                <span>قفل</span>
+            </button>
+        </div>
+    </header>
+
+    <!-- TOP SUMMARY KPI CARDS -->
+    <section class="grid grid-cols-2 lg:grid-cols-4 gap-3 shrink-0">
+        
+        <!-- Total Accumulated Savings Card -->
+        <div class="bg-slate-900/90 border border-emerald-500/30 p-3.5 rounded-2xl shadow-sm flex flex-col justify-between relative overflow-hidden glow-emerald">
+            <div class="absolute -left-6 -top-6 w-20 h-20 bg-emerald-500/10 rounded-full blur-xl"></div>
+            <div class="flex justify-between items-center text-slate-400 mb-1.5 relative z-10">
+                <span class="text-xs font-black text-emerald-400 flex items-center gap-1.5">
+                    <i class="fa-solid fa-vault"></i> رصيد التحويشة
+                </span>
+                <button onclick="openTargetModal()" class="text-[10px] bg-emerald-500/20 text-emerald-300 px-2 py-0.5 rounded-md border border-emerald-500/30 font-bold hover:bg-emerald-500/30 transition-all">
+                    تعديل الهدف 🎯
+                </button>
+            </div>
+            <div class="relative z-10">
+                <div class="text-2xl font-black text-emerald-400 tracking-tight" id="kpiSavingsBalance">0 <span class="text-xs font-bold text-slate-400">ج.م</span></div>
+                <div class="w-full bg-slate-800 h-2 rounded-full mt-2 overflow-hidden border border-slate-700">
+                    <div id="savingsProgressBar" class="bg-gradient-to-r from-emerald-500 to-teal-400 h-full w-0 transition-all duration-500"></div>
+                </div>
+                <div class="flex justify-between items-center text-[10px] text-slate-400 mt-1 font-bold">
+                    <span>الهدف: <span id="kpiSavingsTarget">50,000</span> ج.م</span>
+                    <span id="kpiSavingsPct" class="text-emerald-400">0%</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Total Expenses Card -->
+        <div class="bg-slate-900/90 border border-slate-800 p-3.5 rounded-2xl shadow-sm flex flex-col justify-between">
+            <div class="flex justify-between items-center text-slate-400 mb-1.5">
+                <span class="text-xs font-bold text-slate-300">مصاريف الشهر</span>
+                <div class="w-7 h-7 rounded-xl bg-rose-500/10 border border-rose-500/20 text-rose-400 flex items-center justify-center text-xs">
+                    <i class="fa-solid fa-arrow-up-right-dots"></i>
+                </div>
+            </div>
+            <div>
+                <div class="text-2xl font-black text-rose-400 tracking-tight" id="kpiTotalExpense">0 <span class="text-xs font-bold text-slate-400">ج.م</span></div>
+                <div class="text-[10px] text-slate-400 mt-1" id="kpiTotalCount">0 عملية الشراء والالتزامات</div>
+            </div>
+        </div>
+
+        <!-- Fixed Obligations (Gamayya + AC) -->
+        <div class="bg-slate-900/90 border border-cyan-500/30 p-3.5 rounded-2xl shadow-sm flex flex-col justify-between">
+            <div class="flex justify-between items-center text-slate-400 mb-1.5">
+                <span class="text-xs font-bold text-cyan-400 flex items-center gap-1.5">
+                    <i class="fa-solid fa-file-invoice-dollar"></i> الجمعيات والأقساط
+                </span>
+                <span id="kpiFixedBadge" class="text-[10px] px-2 py-0.5 rounded-full font-bold bg-cyan-500/20 text-cyan-300 border border-cyan-500/30">0/3 مدفوع</span>
+            </div>
+            <div>
+                <div class="text-2xl font-black text-cyan-300 tracking-tight" id="kpiFixedAmount">0 <span class="text-xs font-bold text-slate-500">ج.م</span></div>
+                <div class="text-[10px] text-slate-400 mt-1">الجمعية 1 + الجمعية 2 + قسط التكييف</div>
+            </div>
+        </div>
+
+        <!-- Cafe & Personal Treats Card -->
+        <div class="bg-slate-900/90 border border-amber-500/30 p-3.5 rounded-2xl shadow-sm flex flex-col justify-between relative overflow-hidden glow-amber">
+            <div class="flex justify-between items-center text-slate-400 mb-1.5">
+                <span class="text-xs font-bold text-amber-400 flex items-center gap-1.5">
+                    <i class="fa-solid fa-mug-hot"></i> القهاوي والخروجات
+                </span>
+                <div class="w-7 h-7 rounded-xl bg-amber-500/10 border border-amber-500/20 text-amber-400 flex items-center justify-center text-xs">
+                    <i class="fa-solid fa-champagne-glasses"></i>
+                </div>
+            </div>
+            <div>
+                <div class="text-2xl font-black text-amber-400 tracking-tight" id="kpiCafeAmount">0 <span class="text-xs font-bold text-slate-500">ج.م</span></div>
+                <div class="text-[10px] text-slate-400 mt-1" id="kpiCafeSubtext">تدليل النفس والترفيه</div>
+            </div>
+        </div>
+
+    </section>
+
+    <!-- MONTHLY OBLIGATIONS CHECKLIST (الجمعيات وقسط التكييف) -->
+    <section class="bg-slate-900/90 border border-slate-800 rounded-2xl p-4 shadow-sm">
+        <div class="flex items-center justify-between mb-3 border-b border-slate-800 pb-2">
+            <h3 class="font-black text-white text-xs sm:text-sm flex items-center gap-2">
+                <i class="fa-solid fa-list-check text-indigo-400"></i>
+                <span>متابعة الالتزامات الثابتة لشهر (<span id="checklistMonthText">الحالي</span>)</span>
+            </h3>
+            <span class="text-[10px] text-slate-400">اضغط علم صح عند الدفع لتسجيلها تلقائياً</span>
+        </div>
+
+        <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+            
+            <!-- Gamayya 1 -->
+            <div id="checkCardG1" class="bg-slate-800/60 border border-slate-700/80 p-3 rounded-xl flex items-center justify-between transition-all">
+                <div class="flex items-center gap-2.5">
+                    <div class="w-8 h-8 rounded-lg bg-cyan-500/20 text-cyan-300 border border-cyan-500/30 flex items-center justify-center text-sm font-bold">
+                        🤝
+                    </div>
+                    <div>
+                        <h4 class="text-xs font-extrabold text-white">الجمعية الأولى</h4>
+                        <p class="text-[10px] text-slate-400">قسط شهري متفق عليه</p>
+                    </div>
+                </div>
+                <button onclick="toggleObligation('الجمعية الأولى')" id="btnCheckG1" class="px-3 py-1.5 rounded-lg text-xs font-extrabold transition-all bg-slate-700 text-slate-300 hover:bg-emerald-600 hover:text-white">
+                    لم تدفع ❌
+                </button>
+            </div>
+
+            <!-- Gamayya 2 -->
+            <div id="checkCardG2" class="bg-slate-800/60 border border-slate-700/80 p-3 rounded-xl flex items-center justify-between transition-all">
+                <div class="flex items-center gap-2.5">
+                    <div class="w-8 h-8 rounded-lg bg-indigo-500/20 text-indigo-300 border border-indigo-500/30 flex items-center justify-center text-sm font-bold">
+                        🤝
+                    </div>
+                    <div>
+                        <h4 class="text-xs font-extrabold text-white">الجمعية الثانية</h4>
+                        <p class="text-[10px] text-slate-400">قسط شهري ثابت</p>
+                    </div>
+                </div>
+                <button onclick="toggleObligation('الجمعية الثانية')" id="btnCheckG2" class="px-3 py-1.5 rounded-lg text-xs font-extrabold transition-all bg-slate-700 text-slate-300 hover:bg-emerald-600 hover:text-white">
+                    لم تدفع ❌
+                </button>
+            </div>
+
+            <!-- AC Installment -->
+            <div id="checkCardAC" class="bg-slate-800/60 border border-slate-700/80 p-3 rounded-xl flex items-center justify-between transition-all">
+                <div class="flex items-center gap-2.5">
+                    <div class="w-8 h-8 rounded-lg bg-sky-500/20 text-sky-300 border border-sky-500/30 flex items-center justify-center text-sm font-bold">
+                        ❄️
+                    </div>
+                    <div>
+                        <h4 class="text-xs font-extrabold text-white">قسط التكييف</h4>
+                        <p class="text-[10px] text-slate-400">قسط أجهزة وتجهيزات</p>
+                    </div>
+                </div>
+                <button onclick="toggleObligation('قسط التكييف')" id="btnCheckAC" class="px-3 py-1.5 rounded-lg text-xs font-extrabold transition-all bg-slate-700 text-slate-300 hover:bg-emerald-600 hover:text-white">
+                    لم تدفع ❌
+                </button>
+            </div>
+
+        </div>
+    </section>
+
+    <!-- MAIN DASHBOARD CONTENT GRID -->
+    <main class="grid grid-cols-1 lg:grid-cols-12 gap-4 flex-1">
+        
+        <!-- Left Column: Add Transaction Form & Category Chart -->
+        <div class="lg:col-span-4 flex flex-col gap-4">
+            
+            <!-- Add / Edit Transaction Card -->
+            <div class="bg-slate-900/90 p-4 rounded-2xl shadow-sm border border-slate-800 relative">
+                
+                <div class="flex items-center justify-between pb-3 border-b border-slate-800 mb-3">
+                    <h2 class="font-extrabold text-white text-xs sm:text-sm flex items-center gap-2" id="formHeaderTitle">
+                        <i class="fa-solid fa-circle-plus text-emerald-400"></i>
+                        <span>تسجيل مصروف أو إضافة للتحويشة</span>
+                    </h2>
+                    <span id="editingBadge" class="hidden text-[10px] bg-amber-500/20 text-amber-300 border border-amber-500/30 px-2 py-0.5 rounded-full font-bold">تعديل ✏️</span>
+                </div>
+
+                <form id="addTransactionForm" onsubmit="handleFormSubmit(event)" class="space-y-3">
+                    <input type="hidden" id="editingDocId" value="">
+
+                    <!-- Transaction Type Toggle (Expense vs Deposit) -->
+                    <div>
+                        <label class="block text-xs font-bold text-slate-300 mb-1">نوع العملية *</label>
+                        <div class="grid grid-cols-2 gap-2">
+                            <button type="button" onclick="setTxType('EXPENSE')" id="btnTypeExpense" class="type-btn py-2 rounded-xl font-extrabold text-xs flex items-center justify-center gap-2 border border-rose-500 bg-rose-600/30 text-rose-200 shadow-sm transition-all active:scale-95">
+                                <i class="fa-solid fa-minus-circle"></i> مصروف خروج
+                            </button>
+                            <button type="button" onclick="setTxType('SAVING')" id="btnTypeSaving" class="type-btn py-2 rounded-xl font-extrabold text-xs flex items-center justify-center gap-2 border border-slate-700 text-slate-400 bg-slate-800 transition-all active:scale-95">
+                                <i class="fa-solid fa-plus-circle"></i> إيداع بالتحويشة
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Item Name / Description -->
+                    <div>
+                        <label class="block text-xs font-bold text-slate-300 mb-1">البيان / الوصف *</label>
+                        <input type="text" id="itemName" required placeholder="مثلاً: مواصلات شغل، القهوة مع صحابي، قسط..." class="w-full bg-slate-800/80 border border-slate-700 rounded-xl px-3 py-2 text-xs font-semibold text-white focus:outline-none focus:border-emerald-500 transition-all placeholder:text-slate-500">
+                    </div>
+
+                    <!-- Amount & Date -->
+                    <div class="grid grid-cols-2 gap-2">
+                        <div>
+                            <label class="block text-xs font-bold text-slate-300 mb-1">المبلغ (ج.م) *</label>
+                            <input type="number" step="0.5" id="itemAmount" required placeholder="0.00" class="w-full bg-slate-800/80 border border-slate-700 rounded-xl px-3 py-2 text-xs font-bold text-white focus:outline-none focus:border-emerald-500 transition-all placeholder:text-slate-500">
+                        </div>
+                        <div>
+                            <label class="block text-xs font-bold text-slate-300 mb-1">التاريخ *</label>
+                            <input type="date" id="itemDate" required class="w-full bg-slate-800/80 border border-slate-700 rounded-xl px-2.5 py-2 text-xs font-semibold text-slate-200 focus:outline-none focus:border-emerald-500">
+                        </div>
+                    </div>
+
+                    <!-- Category & Month Grid -->
+                    <div class="grid grid-cols-2 gap-2">
+                        <div>
+                            <label class="block text-xs font-bold text-slate-300 mb-1">البند / التصنيف *</label>
+                            <select id="itemCategory" class="w-full bg-slate-800/80 border border-slate-700 rounded-xl px-2.5 py-2 text-xs font-semibold text-slate-200 focus:outline-none focus:border-emerald-500">
+                                <option value="مواصلات">🚗 مواصلات وتنقلات</option>
+                                <option value="الجمعية الأولى">🤝 الجمعية الأولى</option>
+                                <option value="الجمعية الثانية">🤝 الجمعية الثانية</option>
+                                <option value="قسط التكييف">❄️ قسط التكييف</option>
+                                <option value="قهوة وخروجات">☕ قهوة وخروجات</option>
+                                <option value="حاجة بحبها">🎁 تدليل نفسي / حاجة بحبها</option>
+                                <option value="تحويشة ومدخرات">💰 إيداع بالتحويشة</option>
+                                <option value="أخرى">🛍️ مصاريف أخرى</option>
+                            </select>
+                        </div>
+
+                        <div>
+                            <label class="block text-xs font-bold text-slate-300 mb-1">الشهر *</label>
+                            <select id="itemMonth" class="w-full bg-slate-800/80 border border-slate-700 rounded-xl px-2.5 py-2 text-xs font-semibold text-slate-200 focus:outline-none focus:border-emerald-500">
+                                <option value="يناير">يناير</option>
+                                <option value="فبراير">فبراير</option>
+                                <option value="مارس">مارس</option>
+                                <option value="أبريل">أبريل</option>
+                                <option value="مايو">مايو</option>
+                                <option value="يونيو">يونيو</option>
+                                <option value="يوليو">يوليو</option>
+                                <option value="أغسطس">أغسطس</option>
+                                <option value="سبتمبر">سبتمبر</option>
+                                <option value="أكتوبر">أكتوبر</option>
+                                <option value="نوفمبر">نوفمبر</option>
+                                <option value="ديسمبر">ديسمبر</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="flex gap-2 pt-1">
+                        <button type="submit" id="btnSubmitExpense" class="flex-1 bg-gradient-to-r from-emerald-600 via-teal-600 to-indigo-600 hover:opacity-90 text-white font-extrabold py-2.5 rounded-xl shadow-lg transition-all active:scale-95 text-xs flex items-center justify-center gap-2">
+                            <i class="fa-solid fa-check text-sm"></i>
+                            <span id="btnSubmitText">حفظ العملية 💾</span>
+                        </button>
+                        
+                        <button type="button" id="btnCancelEdit" onclick="cancelEditMode()" class="hidden bg-slate-800 hover:bg-slate-700 text-slate-300 font-bold px-3 py-2.5 rounded-xl text-xs transition-all active:scale-95">
+                            إلغاء
+                        </button>
+                    </div>
+                </form>
+            </div>
+
+            <!-- Category Distribution Donut Chart Card -->
+            <div class="bg-slate-900/90 p-4 rounded-2xl shadow-sm border border-slate-800 flex flex-col justify-between flex-1">
+                <div class="flex items-center justify-between mb-2">
+                    <h3 class="font-extrabold text-white text-xs flex items-center gap-2">
+                        <i class="fa-solid fa-chart-pie text-emerald-400"></i>
+                        توزيع المصاريف حسب البند
+                    </h3>
+                    <span class="text-[10px] text-slate-400">نسبة الميزانية</span>
+                </div>
+                <div class="relative h-56 w-full flex items-center justify-center">
+                    <canvas id="categoryPieChart"></canvas>
+                </div>
+            </div>
+
+        </div>
+
+        <!-- Right Column: Histogram Bar Chart & Transactions Table -->
+        <div class="lg:col-span-8 flex flex-col gap-4">
+            
+            <!-- Histogram Bar Chart Card -->
+            <div class="bg-slate-900/90 p-4 rounded-2xl shadow-sm border border-slate-800">
+                <div class="flex items-center justify-between mb-2">
+                    <div>
+                        <h3 class="font-extrabold text-white text-xs sm:text-sm flex items-center gap-2">
+                            <i class="fa-solid fa-chart-column text-amber-400"></i>
+                            مقارنة تكلفة كل بند (جنيه مصري)
+                        </h3>
+                        <p class="text-[10px] text-slate-400">تفاصيل المبالغ المصروفة والتحويشة بالفترة المختارة</p>
+                    </div>
+                </div>
+
+                <div class="relative h-52 w-full">
+                    <canvas id="categoryHistogramChart"></canvas>
+                </div>
+            </div>
+
+            <!-- Detailed History Table & Search -->
+            <div class="bg-slate-900/90 p-4 rounded-2xl shadow-sm border border-slate-800 flex flex-col flex-1">
+                <div class="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-2 mb-3">
+                    <h3 class="font-extrabold text-white text-xs sm:text-sm flex items-center gap-2">
+                        <i class="fa-solid fa-receipt text-emerald-400"></i>
+                        سجل الحركات المسجلة
+                    </h3>
+
+                    <!-- Search Box -->
+                    <div class="relative w-full sm:w-64">
+                        <i class="fa-solid fa-magnifying-glass absolute right-3 top-1/2 -translate-y-1/2 text-slate-500 text-xs"></i>
+                        <input type="text" id="searchInput" oninput="renderTable()" placeholder="بحث في الملاحظات والبيان..." class="w-full bg-slate-800/80 border border-slate-700 rounded-xl pr-8 pl-3 py-1.5 text-xs text-white focus:outline-none focus:border-emerald-500 placeholder:text-slate-500">
+                    </div>
+                </div>
+
+                <!-- Scrollable Table -->
+                <div class="overflow-x-auto flex-1 max-h-80">
+                    <table class="w-full text-right text-xs">
+                        <thead class="sticky top-0 bg-slate-800 text-slate-300 font-bold border-b border-slate-700">
+                            <tr>
+                                <th class="p-2.5 rounded-r-xl">التاريخ</th>
+                                <th class="p-2.5">البند</th>
+                                <th class="p-2.5">البيان / التفاصيل</th>
+                                <th class="p-2.5">المبلغ</th>
+                                <th class="p-2.5 text-center rounded-l-xl">إجراءات</th>
+                            </tr>
+                        </thead>
+                        <tbody id="transactionsTableBody" class="divide-y divide-slate-800 text-slate-200">
+                            <!-- Injected via JavaScript -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+        </div>
+
+    </main>
+
+    <!-- Mobile Fixed Bottom Action Bar -->
+    <div class="md:hidden fixed bottom-3 left-3 right-3 bg-slate-900/95 backdrop-blur-lg border border-slate-700/80 rounded-2xl p-2.5 flex items-center justify-around z-40 shadow-2xl">
+        <button onclick="window.scrollTo({top: 0, behavior: 'smooth'})" class="flex flex-col items-center text-slate-300 hover:text-white text-[10px] font-bold gap-0.5">
+            <i class="fa-solid fa-plus-circle text-emerald-400 text-base"></i>
+            <span>إضافة</span>
+        </button>
+        <button onclick="openTargetModal()" class="flex flex-col items-center text-slate-300 hover:text-white text-[10px] font-bold gap-0.5">
+            <i class="fa-solid fa-bullseye text-amber-400 text-base"></i>
+            <span>الهدف</span>
+        </button>
+        <button onclick="exportToExcel()" class="flex flex-col items-center text-slate-300 hover:text-white text-[10px] font-bold gap-0.5">
+            <i class="fa-solid fa-file-excel text-emerald-400 text-base"></i>
+            <span>إكسيل</span>
+        </button>
+        <button onclick="lockApp()" class="flex flex-col items-center text-slate-300 hover:text-white text-[10px] font-bold gap-0.5">
+            <i class="fa-solid fa-lock text-rose-400 text-base"></i>
+            <span>قفل</span>
+        </button>
+    </div>
+
+    <!-- Savings Target Modal -->
+    <div id="targetModal" class="fixed inset-0 z-50 bg-slate-950/80 backdrop-blur-sm hidden items-center justify-center p-4">
+        <div class="bg-slate-900 border border-slate-800 rounded-3xl p-6 w-full max-w-sm text-center shadow-2xl relative">
+            <div class="w-12 h-12 rounded-2xl bg-emerald-500/20 text-emerald-400 flex items-center justify-center text-xl mx-auto mb-3 border border-emerald-500/30">
+                <i class="fa-solid fa-bullseye"></i>
+            </div>
+            <h3 class="font-extrabold text-white text-sm mb-1">تعديل هدف التحويشة</h3>
+            <p class="text-xs text-slate-400 mb-4">حدد المبلغ المطلوب الوصول إليه لتتبع نسبة الإنجاز</p>
+            <input type="number" id="targetInput" class="w-full bg-slate-800 border border-slate-700 rounded-xl p-3 text-center text-lg font-bold text-emerald-300 focus:outline-none focus:border-emerald-500 mb-4" placeholder="مثال: 50000">
+            <div class="grid grid-cols-2 gap-2">
+                <button onclick="closeTargetModal()" class="py-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs font-bold">إلغاء</button>
+                <button onclick="saveTargetGoal()" class="py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-bold">حفظ الهدف 🎯</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Custom Delete Confirmation Modal -->
+    <div id="deleteModal" class="fixed inset-0 z-50 bg-slate-950/80 backdrop-blur-sm hidden items-center justify-center p-4">
+        <div class="bg-slate-900 border border-slate-800 rounded-2xl p-5 w-full max-w-sm text-center shadow-xl">
+            <div class="w-12 h-12 rounded-full bg-rose-500/20 text-rose-400 flex items-center justify-center text-xl mx-auto mb-3">
+                <i class="fa-solid fa-trash-can"></i>
+            </div>
+            <h3 class="font-extrabold text-white text-sm mb-1">تأكيد الحذف</h3>
+            <p class="text-xs text-slate-400 mb-5">هل أنت متأكد من حذف هذه الحركة؟</p>
+            <div class="grid grid-cols-2 gap-2">
+                <button onclick="closeDeleteModal()" class="py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs font-bold">إلغاء</button>
+                <button onclick="confirmDeleteExpense()" class="py-2 rounded-xl bg-rose-600 hover:bg-rose-500 text-white text-xs font-bold">نعم، إحذف</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Toast Notification -->
+    <div id="toast" class="fixed bottom-16 sm:bottom-5 left-1/2 -translate-x-1/2 bg-slate-800 border border-slate-700 text-white px-4 py-2.5 rounded-2xl shadow-2xl text-xs font-bold flex items-center gap-2 opacity-0 pointer-events-none transition-all z-50">
+        <i id="toastIcon" class="fa-solid fa-circle-check text-emerald-400"></i>
+        <span id="toastMsg">تم الحفظ بنجاح</span>
+    </div>
+
+    <script>
+        // App State Variables
+        window.transactions = [];
+        window.currentType = 'EXPENSE'; // EXPENSE or SAVING
+        window.pendingDeleteId = null;
+        window.savingsGoal = parseFloat(localStorage.getItem('my_savings_goal')) || 50000;
+        
+        // PIN security key
+        const PIN_KEY = 'personal_wallet_pin_unlocked';
+
+        function triggerHaptic() {
+            if ("vibrate" in navigator) {
+                try { navigator.vibrate(35); } catch (e) {}
+            }
+        }
+
+        window.checkPinState = function() {
+            const isUnlocked = localStorage.getItem(PIN_KEY) === 'true';
+            const modal = document.getElementById('pinLockModal');
+            if (isUnlocked) {
+                modal.classList.add('hidden');
+            } else {
+                modal.classList.remove('hidden');
+            }
+        };
+
+        window.handlePinSubmit = function(e) {
+            e.preventDefault();
+            triggerHaptic();
+            const pinVal = document.getElementById('pinInput').value.trim();
+            const errEl = document.getElementById('pinErrorMsg');
+
+            if (pinVal === '2607') {
+                localStorage.setItem(PIN_KEY, 'true');
+                document.getElementById('pinLockModal').classList.add('hidden');
+                document.getElementById('pinInput').value = '';
+                errEl.classList.add('hidden');
+                showToast('أهلاً بك في محفظتك الشخصية 💼');
+            } else {
+                errEl.classList.remove('hidden');
+                document.getElementById('pinInput').value = '';
+            }
+        };
+
+        window.lockApp = function() {
+            triggerHaptic();
+            localStorage.removeItem(PIN_KEY);
+            document.getElementById('pinLockModal').classList.remove('hidden');
+        };
+
+        function setTxType(type) {
+            triggerHaptic();
+            window.currentType = type;
+            const btnExp = document.getElementById('btnTypeExpense');
+            const btnSav = document.getElementById('btnTypeSaving');
+            const categorySelect = document.getElementById('itemCategory');
+
+            if (type === 'EXPENSE') {
+                btnExp.className = "type-btn py-2 rounded-xl font-extrabold text-xs flex items-center justify-center gap-2 border border-rose-500 bg-rose-600/30 text-rose-200 shadow-sm transition-all active:scale-95";
+                btnSav.className = "type-btn py-2 rounded-xl font-extrabold text-xs flex items-center justify-center gap-2 border border-slate-700 text-slate-400 bg-slate-800 transition-all active:scale-95";
+                if (categorySelect.value === 'تحويشة ومدخرات') categorySelect.value = 'مواصلات';
+            } else {
+                btnExp.className = "type-btn py-2 rounded-xl font-extrabold text-xs flex items-center justify-center gap-2 border border-slate-700 text-slate-400 bg-slate-800 transition-all active:scale-95";
+                btnSav.className = "type-btn py-2 rounded-xl font-extrabold text-xs flex items-center justify-center gap-2 border border-emerald-500 bg-emerald-600/30 text-emerald-200 shadow-sm transition-all active:scale-95";
+                categorySelect.value = 'تحويشة ومدخرات';
+            }
+        }
+
+        // Categories metadata with colors and icons
+        const categoriesMap = {
+            'مواصلات': { icon: 'fa-car-side', color: 'bg-cyan-500/20 text-cyan-300 border-cyan-500/30', chartColor: '#06b6d4' },
+            'الجمعية الأولى': { icon: 'fa-handshake', color: 'bg-indigo-500/20 text-indigo-300 border-indigo-500/30', chartColor: '#6366f1' },
+            'الجمعية الثانية': { icon: 'fa-handshake-simple', color: 'bg-purple-500/20 text-purple-300 border-purple-500/30', chartColor: '#a855f7' },
+            'قسط التكييف': { icon: 'fa-snowflake', color: 'bg-sky-500/20 text-sky-300 border-sky-500/30', chartColor: '#0284c7' },
+            'قهوة وخروجات': { icon: 'fa-mug-saucer', color: 'bg-amber-500/20 text-amber-300 border-amber-500/30', chartColor: '#d97706' },
+            'حاجة بحبها': { icon: 'fa-gift', color: 'bg-rose-500/20 text-rose-300 border-rose-500/30', chartColor: '#f43f5e' },
+            'تحويشة ومدخرات': { icon: 'fa-piggy-bank', color: 'bg-emerald-500/20 text-emerald-300 border-emerald-500/30', chartColor: '#10b981' },
+            'أخرى': { icon: 'fa-bag-shopping', color: 'bg-slate-700/50 text-slate-300 border-slate-600', chartColor: '#64748b' }
+        };
+
+        function loadLocalData() {
+            const savedData = localStorage.getItem('personal_wallet_transactions');
+            if (savedData) {
+                try {
+                    window.transactions = JSON.parse(savedData);
+                } catch (e) {
+                    initDefaults();
+                }
+            } else {
+                initDefaults();
+            }
+            updateDashboard();
+        }
+
+        function initDefaults() {
+            const today = new Date().toISOString().split('T')[0];
+            window.transactions = [
+                { id: '1', date: today, month: 'سبتمبر', category: 'تحويشة ومدخرات', name: 'إيداع شهري للتحويشة', type: 'SAVING', amount: 3500 },
+                { id: '2', date: today, month: 'سبتمبر', category: 'الجمعية الأولى', name: 'قسط الجمعية الأولى', type: 'EXPENSE', amount: 1000 },
+                { id: '3', date: today, month: 'سبتمبر', category: 'الجمعية الثانية', name: 'قسط الجمعية الثانية', type: 'EXPENSE', amount: 1500 },
+                { id: '4', date: today, month: 'سبتمبر', category: 'قسط التكييف', name: 'قسط شهر سبتمبر للتكييف', type: 'EXPENSE', amount: 850 },
+                { id: '5', date: today, month: 'سبتمبر', category: 'مواصلات', name: 'شحن كارت المترو + أوبر', type: 'EXPENSE', amount: 300 },
+                { id: '6', date: today, month: 'سبتمبر', category: 'قهوة وخروجات', name: 'قعدة القهوة مع صحابي', type: 'EXPENSE', amount: 120 },
+                { id: '7', date: today, month: 'سبتمبر', category: 'حاجة بحبها', name: 'اشتريت هاند فري جديدة', type: 'EXPENSE', amount: 250 }
+            ];
+            saveLocalData();
+        }
+
+        function saveLocalData() {
+            localStorage.setItem('personal_wallet_transactions', JSON.stringify(window.transactions));
+        }
+
+        window.handleFormSubmit = function(e) {
+            e.preventDefault();
+            triggerHaptic();
+
+            const docId = document.getElementById('editingDocId').value;
+            const name = document.getElementById('itemName').value.trim();
+            const amount = parseFloat(document.getElementById('itemAmount').value);
+            const date = document.getElementById('itemDate').value;
+            const category = document.getElementById('itemCategory').value;
+            const month = document.getElementById('itemMonth').value;
+
+            if (!name || isNaN(amount) || amount <= 0) return;
+
+            const itemPayload = {
+                id: docId || 'tx_' + Date.now(),
+                name,
+                amount,
+                date,
+                category,
+                month,
+                type: (category === 'تحويشة ومدخرات' || window.currentType === 'SAVING') ? 'SAVING' : 'EXPENSE'
+            };
+
+            if (docId) {
+                const idx = window.transactions.findIndex(x => x.id === docId);
+                if (idx !== -1) {
+                    window.transactions[idx] = itemPayload;
+                }
+                cancelEditMode();
+                showToast('تم تعديل الحركة بنجاح 🔄');
+            } else {
+                window.transactions.unshift(itemPayload);
+                document.getElementById('itemName').value = '';
+                document.getElementById('itemAmount').value = '';
+                showToast('تم حفظ العملية 🚀');
+            }
+
+            saveLocalData();
+            if (window.saveTxToCloud) {
+                window.saveTxToCloud(itemPayload);
+            }
+            updateDashboard();
+        };
+
+        window.editExpense = function(id) {
+            triggerHaptic();
+            const item = window.transactions.find(x => x.id === id);
+            if (!item) return;
+
+            document.getElementById('editingDocId').value = item.id;
+            document.getElementById('itemName').value = item.name;
+            document.getElementById('itemAmount').value = item.amount;
+            document.getElementById('itemDate').value = item.date;
+            document.getElementById('itemCategory').value = item.category;
+            document.getElementById('itemMonth').value = item.month;
+            
+            setTxType(item.type);
+
+            document.getElementById('formHeaderTitle').querySelector('span').textContent = 'تعديل بيانات الحركة';
+            document.getElementById('btnSubmitText').textContent = 'حفظ التعديل 🔄';
+            document.getElementById('editingBadge').classList.remove('hidden');
+            document.getElementById('btnCancelEdit').classList.remove('hidden');
+
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        };
+
+        window.cancelEditMode = function() {
+            triggerHaptic();
+            document.getElementById('editingDocId').value = '';
+            document.getElementById('itemName').value = '';
+            document.getElementById('itemAmount').value = '';
+            
+            document.getElementById('formHeaderTitle').querySelector('span').textContent = 'تسجيل مصروف أو إضافة للتحويشة';
+            document.getElementById('btnSubmitText').textContent = 'حفظ العملية 💾';
+            document.getElementById('editingBadge').classList.add('hidden');
+            document.getElementById('btnCancelEdit').classList.add('hidden');
+        };
+
+        window.openDeleteModal = function(id) {
+            triggerHaptic();
+            window.pendingDeleteId = id;
+            document.getElementById('deleteModal').classList.remove('hidden');
+            document.getElementById('deleteModal').classList.add('flex');
+        };
+
+        window.closeDeleteModal = function() {
+            window.pendingDeleteId = null;
+            document.getElementById('deleteModal').classList.add('hidden');
+            document.getElementById('deleteModal').classList.remove('flex');
+        };
+
+        window.confirmDeleteExpense = function() {
+            triggerHaptic();
+            if (!window.pendingDeleteId) return;
+
+            const deletedId = window.pendingDeleteId;
+            window.transactions = window.transactions.filter(x => x.id !== deletedId);
+            closeDeleteModal();
+            saveLocalData();
+            if (window.deleteTxFromCloud) {
+                window.deleteTxFromCloud(deletedId);
+            }
+            updateDashboard();
+            showToast('تم الحذف بنجاح 🗑️');
+        };
+
+        window.openTargetModal = function() {
+            triggerHaptic();
+            document.getElementById('targetInput').value = window.savingsGoal;
+            document.getElementById('targetModal').classList.remove('hidden');
+            document.getElementById('targetModal').classList.add('flex');
+        };
+
+        window.closeTargetModal = function() {
+            document.getElementById('targetModal').classList.add('hidden');
+            document.getElementById('targetModal').classList.remove('flex');
+        };
+
+        window.saveTargetGoal = function() {
+            triggerHaptic();
+            const val = parseFloat(document.getElementById('targetInput').value);
+            if (val && val > 0) {
+                window.savingsGoal = val;
+                localStorage.setItem('my_savings_goal', val.toString());
+                if (window.saveGoalToCloud) {
+                    window.saveGoalToCloud(val);
+                }
+                closeTargetModal();
+                updateDashboard();
+                showToast('تم تحديث هدف التحويشة 🎯');
+            }
+        };
+
+        // Toggle Payment Checklist for Obligations
+        window.toggleObligation = function(categoryName) {
+            triggerHaptic();
+            const selectedMonth = document.getElementById('filterMonthSelect').value === 'ALL' ? document.getElementById('itemMonth').value : document.getElementById('filterMonthSelect').value;
+            
+            const existingIndex = window.transactions.findIndex(x => x.category === categoryName && x.month === selectedMonth);
+
+            if (existingIndex !== -1) {
+                // If exists, remove it (Mark Unpaid)
+                window.transactions.splice(existingIndex, 1);
+                showToast(`تم إلغاء سداد ${categoryName}`);
+            } else {
+                // Add default transaction for this obligation
+                let amount = 1000;
+                if (categoryName === 'الجمعية الأولى') amount = 1000;
+                if (categoryName === 'الجمعية الثانية') amount = 1500;
+                if (categoryName === 'قسط التكييف') amount = 850;
+
+                const today = new Date().toISOString().split('T')[0];
+                window.transactions.unshift({
+                    id: 'tx_' + Date.now(),
+                    name: `سداد ${categoryName} لشهر ${selectedMonth}`,
+                    amount: amount,
+                    date: today,
+                    category: categoryName,
+                    month: selectedMonth,
+                    type: 'EXPENSE'
+                });
+                showToast(`تم تسديد ${categoryName} بنجاح ✅`);
+            }
+
+            saveLocalData();
+            updateDashboard();
+        };
+
+        let histogramChart = null;
+        let pieChart = null;
+
+        function handleMonthChange() {
+            triggerHaptic();
+            updateDashboard();
+        }
+
+        function getFilteredData() {
+            const selectedMonth = document.getElementById('filterMonthSelect').value;
+            const data = window.transactions || [];
+            if (selectedMonth === 'ALL') {
+                return data;
+            }
+            return data.filter(x => x.month === selectedMonth);
+        }
+
+        function updateDashboard() {
+            const filtered = getFilteredData();
+            const selectedMonth = document.getElementById('filterMonthSelect').value;
+            
+            document.getElementById('checklistMonthText').textContent = selectedMonth === 'ALL' ? 'الحالي' : selectedMonth;
+
+            // Total Savings Accumulated across ALL history
+            const totalSavedBalance = window.transactions
+                .filter(x => x.category === 'تحويشة ومدخرات' || x.type === 'SAVING')
+                .reduce((acc, curr) => acc + (parseFloat(curr.amount) || 0), 0);
+
+            // Month Expense Calculations
+            let monthTotalExpense = 0;
+            let fixedObligationsTotal = 0;
+            let cafeTotal = 0;
+
+            const catTotals = {};
+            Object.keys(categoriesMap).forEach(c => catTotals[c] = 0);
+
+            filtered.forEach(item => {
+                const amt = parseFloat(item.amount) || 0;
+                
+                if (item.category !== 'تحويشة ومدخرات' && item.type !== 'SAVING') {
+                    monthTotalExpense += amt;
+                }
+
+                if (item.category === 'الجمعية الأولى' || item.category === 'الجمعية الثانية' || item.category === 'قسط التكييف') {
+                    fixedObligationsTotal += amt;
+                }
+
+                if (item.category === 'قهوة وخروجات' || item.category === 'حاجة بحبها') {
+                    cafeTotal += amt;
+                }
+
+                if (catTotals[item.category] !== undefined) {
+                    catTotals[item.category] += amt;
+                } else {
+                    catTotals['أخرى'] += amt;
+                }
+            });
+
+            // Update KPI Displays
+            document.getElementById('kpiSavingsBalance').textContent = totalSavedBalance.toLocaleString('ar-EG');
+            document.getElementById('kpiSavingsTarget').textContent = window.savingsGoal.toLocaleString('ar-EG');
+            
+            const pct = Math.min(100, Math.round((totalSavedBalance / window.savingsGoal) * 100));
+            document.getElementById('kpiSavingsPct').textContent = `${pct}%`;
+            document.getElementById('savingsProgressBar').style.width = `${pct}%`;
+
+            document.getElementById('kpiTotalExpense').textContent = monthTotalExpense.toLocaleString('ar-EG');
+            document.getElementById('kpiTotalCount').textContent = `${filtered.length} عمليات مسجلة`;
+
+            document.getElementById('kpiFixedAmount').textContent = fixedObligationsTotal.toLocaleString('ar-EG');
+            document.getElementById('kpiCafeAmount').textContent = cafeTotal.toLocaleString('ar-EG');
+
+            // Update Obligations Checklist States
+            updateObligationCard('checkCardG1', 'btnCheckG1', 'الجمعية الأولى', filtered);
+            updateObligationCard('checkCardG2', 'btnCheckG2', 'الجمعية الثانية', filtered);
+            updateObligationCard('checkCardAC', 'btnCheckAC', 'قسط التكييف', filtered);
+
+            renderHistogram(catTotals);
+            renderPieChart(catTotals);
+            renderTable();
+        }
+
+        function updateObligationCard(cardId, btnId, categoryName, currentFilteredList) {
+            const isPaid = currentFilteredList.some(x => x.category === categoryName);
+            const card = document.getElementById(cardId);
+            const btn = document.getElementById(btnId);
+
+            if (isPaid) {
+                card.className = "bg-emerald-950/40 border border-emerald-500/50 p-3 rounded-xl flex items-center justify-between transition-all";
+                btn.className = "px-3 py-1.5 rounded-lg text-xs font-extrabold transition-all bg-emerald-600 text-white shadow-md";
+                btn.textContent = "تم الدفع ✅";
+            } else {
+                card.className = "bg-slate-800/60 border border-slate-700/80 p-3 rounded-xl flex items-center justify-between transition-all";
+                btn.className = "px-3 py-1.5 rounded-lg text-xs font-extrabold transition-all bg-slate-700 text-slate-300 hover:bg-emerald-600 hover:text-white";
+                btn.textContent = "لم تدفع ❌";
+            }
+
+            // Update KPI count badge
+            const countPaid = [
+                currentFilteredList.some(x => x.category === 'الجمعية الأولى'),
+                currentFilteredList.some(x => x.category === 'الجمعية الثانية'),
+                currentFilteredList.some(x => x.category === 'قسط التكييف')
+            ].filter(Boolean).length;
+
+            document.getElementById('kpiFixedBadge').textContent = `${countPaid}/3 مدفوع`;
+        }
+
+        function renderHistogram(catTotals) {
+            const ctx = document.getElementById('categoryHistogramChart').getContext('2d');
+            
+            const activeCats = Object.keys(catTotals).filter(c => catTotals[c] > 0);
+            const labels = activeCats.length > 0 ? activeCats : Object.keys(catTotals);
+            const dataValues = labels.map(c => catTotals[c]);
+            const bgColors = labels.map(c => (categoriesMap[c] && categoriesMap[c].chartColor) || '#64748b');
+
+            if (histogramChart) histogramChart.destroy();
+
+            histogramChart = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        label: 'المبلغ (ج.م)',
+                        data: dataValues,
+                        backgroundColor: bgColors,
+                        borderRadius: 8,
+                        borderSkipped: false,
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: { legend: { display: false } },
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            grid: { color: '#1e293b' },
+                            ticks: { color: '#94a3b8', font: { family: 'Cairo', size: 10 } }
+                        },
+                        x: {
+                            grid: { display: false },
+                            ticks: { color: '#cbd5e1', font: { family: 'Cairo', size: 10, weight: 'bold' } }
+                        }
+                    }
+                }
+            });
+        }
+
+        function renderPieChart(catTotals) {
+            const ctx = document.getElementById('categoryPieChart').getContext('2d');
+
+            const labels = [];
+            const dataValues = [];
+            const colors = [];
+
+            Object.keys(catTotals).forEach(cat => {
+                if (catTotals[cat] > 0) {
+                    labels.push(cat);
+                    dataValues.push(catTotals[cat]);
+                    colors.push((categoriesMap[cat] && categoriesMap[cat].chartColor) || '#64748b');
+                }
+            });
+
+            if (pieChart) pieChart.destroy();
+
+            if (labels.length === 0) {
+                labels.push('لا توجد بيانات');
+                dataValues.push(1);
+                colors.push('#334155');
+            }
+
+            pieChart = new Chart(ctx, {
+                type: 'doughnut',
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        data: dataValues,
+                        backgroundColor: colors,
+                        borderWidth: 2,
+                        borderColor: '#0f172a'
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            position: 'bottom',
+                            labels: {
+                                color: '#cbd5e1',
+                                font: { family: 'Cairo', size: 10, weight: 'bold' },
+                                boxWidth: 10,
+                                padding: 8
+                            }
+                        }
+                    }
+                }
+            });
+        }
+
+        function renderTable() {
+            const tbody = document.getElementById('transactionsTableBody');
+            const searchVal = document.getElementById('searchInput').value.trim().toLowerCase();
+            const filtered = getFilteredData().filter(item => !searchVal || item.name.toLowerCase().includes(searchVal));
+
+            if (filtered.length === 0) {
+                tbody.innerHTML = `
+                    <tr>
+                        <td colspan="5" class="text-center py-8 text-slate-500 font-bold">لا توجد مصاريف أو تحويشة مسجلة</td>
+                    </tr>
+                `;
+                return;
+            }
+
+            tbody.innerHTML = filtered.map(item => {
+                const catObj = categoriesMap[item.category] || categoriesMap['أخرى'];
+                const isSaving = item.category === 'تحويشة ومدخرات' || item.type === 'SAVING';
+
+                return `
+                    <tr class="hover:bg-slate-800/50 transition-colors">
+                        <td class="p-2.5 font-semibold text-slate-400 whitespace-nowrap">${item.date}</td>
+                        <td class="p-2.5 whitespace-nowrap">
+                            <span class="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-lg border ${catObj.color} font-bold text-[11px]">
+                                <i class="fa-solid ${catObj.icon}"></i> ${item.category}
+                            </span>
+                        </td>
+                        <td class="p-2.5 font-extrabold text-white">${escapeHtml(item.name)}</td>
+                        <td class="p-2.5 font-black ${isSaving ? 'text-emerald-400' : 'text-rose-400'}">
+                            ${isSaving ? '+' : '-'}${item.amount} <span class="text-[10px] text-slate-400">ج.م</span>
+                        </td>
+                        <td class="p-2.5 text-center whitespace-nowrap">
+                            <div class="inline-flex items-center gap-1">
+                                <button onclick="editExpense('${item.id}')" class="w-6 h-6 rounded-md text-slate-400 hover:text-amber-400 hover:bg-amber-500/10 inline-flex items-center justify-center transition-all" title="تعديل">
+                                    <i class="fa-solid fa-pen-to-square text-xs"></i>
+                                </button>
+                                <button onclick="openDeleteModal('${item.id}')" class="w-6 h-6 rounded-md text-slate-400 hover:text-rose-400 hover:bg-rose-500/10 inline-flex items-center justify-center transition-all" title="حذف">
+                                    <i class="fa-solid fa-trash-can text-xs"></i>
+                                </button>
+                            </div>
+                        </td>
+                    </tr>
+                `;
+            }).join('');
+        }
+
+        function exportToExcel() {
+            triggerHaptic();
+            const dataToExport = (window.transactions || []).map((x, idx) => ({
+                "م": idx + 1,
+                "التاريخ": x.date,
+                "الشهر": x.month,
+                "البند": x.category,
+                "البيان / التفاصيل": x.name,
+                "النوع": x.type === 'SAVING' ? 'إيداع بالتحويشة' : 'مصروف',
+                "المبلغ (ج.م)": x.amount
+            }));
+
+            const worksheet = XLSX.utils.json_to_sheet(dataToExport);
+            const workbook = XLSX.utils.book_new();
+            XLSX.utils.book_append_sheet(workbook, worksheet, "محفظتي الشخصية");
+
+            if (!workbook.Workbook) workbook.Workbook = {};
+            if (!workbook.Workbook.Views) workbook.Workbook.Views = [{}];
+            workbook.Workbook.Views[0].RTL = true;
+
+            XLSX.writeFile(workbook, `محفظتي_الشخصية_${new Date().toISOString().slice(0, 10)}.xlsx`);
+            showToast('تم تحميل كشف الإكسيل 📊');
+        }
+
+        function showToast(msg) {
+            const toast = document.getElementById('toast');
+            document.getElementById('toastMsg').textContent = msg;
+            toast.classList.remove('opacity-0', 'pointer-events-none');
+            setTimeout(() => {
+                toast.classList.add('opacity-0', 'pointer-events-none');
+            }, 2200);
+        }
+
+        function escapeHtml(str) {
+            return String(str).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+        }
+
+        window.addEventListener('DOMContentLoaded', () => {
+            window.checkPinState();
+            
+            const today = new Date().toISOString().split('T')[0];
+            document.getElementById('itemDate').value = today;
+
+            const monthNames = ["يناير", "فبراير", "مارس", "أبريل", "مايو", "يونيو", "يوليو", "أغسطس", "سبتمبر", "أكتوبر", "نوفمبر", "ديسمبر"];
+            const currentMonthName = monthNames[new Date().getMonth()];
+            
+            document.getElementById('itemMonth').value = currentMonthName;
+            document.getElementById('filterMonthSelect').value = currentMonthName;
+
+            loadLocalData();
+        });
+    </script>
+
+    <!-- Firebase Realtime Cloud Synchronization Script -->
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
+        import { getAuth, signInAnonymously, signInWithCustomToken, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+        import { getFirestore, doc, setDoc, collection, onSnapshot, deleteDoc } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+
+        const appId = typeof __app_id !== 'undefined' ? __app_id : 'my-wallet-app';
+        const firebaseConfig = typeof __firebase_config !== 'undefined' ? JSON.parse(__firebase_config) : null;
+
+        let db = null;
+        let auth = null;
+        let currentUser = null;
+
+        if (firebaseConfig) {
+            const app = initializeApp(firebaseConfig);
+            db = getFirestore(app);
+            auth = getAuth(app);
+
+            async function initAuth() {
+                try {
+                    if (typeof __initial_auth_token !== 'undefined' && __initial_auth_token) {
+                        await signInWithCustomToken(auth, __initial_auth_token);
+                    } else {
+                        await signInAnonymously(auth);
+                    }
+                } catch(e) {
+                    console.error("Auth initialization error:", e);
+                }
+            }
+
+            onAuthStateChanged(auth, (user) => {
+                currentUser = user;
+                if (user) {
+                    setupRealtimeSync();
+                }
+            });
+
+            initAuth();
+        }
+
+        function setupRealtimeSync() {
+            if (!db || !currentUser) return;
+
+            // Sync Transactions across all devices
+            const txColRef = collection(db, 'artifacts', appId, 'public', 'data', 'transactions');
+            onSnapshot(txColRef, (snapshot) => {
+                const cloudTxs = [];
+                snapshot.forEach(docSnap => {
+                    cloudTxs.push({ id: docSnap.id, ...docSnap.data() });
+                });
+
+                if (cloudTxs.length > 0) {
+                    cloudTxs.sort((a,b) => (b.date || '').localeCompare(a.date || '') || b.id.localeCompare(a.id));
+                    window.transactions = cloudTxs;
+                    localStorage.setItem('personal_wallet_transactions', JSON.stringify(cloudTxs));
+                    if (typeof window.updateDashboard === 'function') {
+                        window.updateDashboard();
+                    }
+                }
+                updateCloudBadge(true);
+            }, (error) => {
+                console.error("Realtime Sync Error:", error);
+                updateCloudBadge(false);
+            });
+
+            // Sync Savings Goal
+            const settingsDocRef = doc(db, 'artifacts', appId, 'public', 'data', 'settings', 'goal');
+            onSnapshot(settingsDocRef, (docSnap) => {
+                if (docSnap.exists() && docSnap.data().savingsGoal) {
+                    window.savingsGoal = docSnap.data().savingsGoal;
+                    localStorage.setItem('my_savings_goal', window.savingsGoal.toString());
+                    if (typeof window.updateDashboard === 'function') {
+                        window.updateDashboard();
+                    }
+                }
+            }, (err) => console.error(err));
+        }
+
+        function updateCloudBadge(isConnected) {
+            const badge = document.getElementById('cloudSyncBadge');
+            if (badge) {
+                if (isConnected) {
+                    badge.innerHTML = `<span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span> متزامن مع الموبايل واللاب ☁️`;
+                    badge.className = "text-[11px] text-emerald-400 font-bold flex items-center gap-1.5 bg-emerald-500/10 px-2 py-0.5 rounded-lg border border-emerald-500/20";
+                } else {
+                    badge.innerHTML = `<span class="w-2 h-2 rounded-full bg-amber-400"></span> حفظ محلي 📱`;
+                    badge.className = "text-[11px] text-amber-400 font-bold flex items-center gap-1.5 bg-amber-500/10 px-2 py-0.5 rounded-lg border border-amber-500/20";
+                }
+            }
+        }
+
+        window.saveTxToCloud = async function(txItem) {
+            if (!db || !currentUser) return;
+            try {
+                const docRef = doc(db, 'artifacts', appId, 'public', 'data', 'transactions', txItem.id);
+                await setDoc(docRef, txItem, { merge: true });
+            } catch(e) {
+                console.error("Failed to save to cloud:", e);
+            }
+        };
+
+        window.deleteTxFromCloud = async function(docId) {
+            if (!db || !currentUser) return;
+            try {
+                const docRef = doc(db, 'artifacts', appId, 'public', 'data', 'transactions', docId);
+                await deleteDoc(docRef);
+            } catch(e) {
+                console.error("Failed to delete from cloud:", e);
+            }
+        };
+
+        window.saveGoalToCloud = async function(goal) {
+            if (!db || !currentUser) return;
+            try {
+                const docRef = doc(db, 'artifacts', appId, 'public', 'data', 'settings', 'goal');
+                await setDoc(docRef, { savingsGoal: goal }, { merge: true });
+            } catch(e) {
+                console.error("Failed to save goal:", e);
+            }
+        };
+    </script>
+</body>
+</html>
