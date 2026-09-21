@@ -175,7 +175,7 @@
                     </h1>
                     <p class="text-[11px] text-slate-400 font-bold mt-1 flex flex-wrap items-center gap-2">
                         <span id="cloudSyncBadge" class="text-[11px] text-emerald-400 font-bold flex items-center gap-1.5 bg-emerald-500/10 px-2.5 py-0.5 rounded-xl border border-emerald-500/20">
-                            <span class="w-2 h-2 rounded-full bg-emerald-400 animate-ping"></span> متزامن سحابياً ☁️
+                            <span class="w-2 h-2 rounded-full bg-emerald-400"></span> بياناتك محفوظة على جهازك 🔒
                         </span>
                         <span>إدارة المواصلات، الجمعيات، القسط، والتحويشة</span>
                     </p>
@@ -183,12 +183,18 @@
             </div>
 
             <div class="flex items-center gap-2 md:hidden">
-                <button onclick="triggerCloudSyncManual()" class="bg-slate-800/80 text-indigo-300 p-2.5 rounded-2xl border border-slate-700/80 text-xs font-bold active:scale-95 shadow-sm">
-                    <i class="fa-solid fa-rotate"></i>
+                <button onclick="exportJsonBackup()" class="bg-slate-800/80 text-indigo-300 p-2.5 rounded-2xl border border-slate-700/80 text-xs font-bold active:scale-95 shadow-sm" title="تصدير نسخة JSON">
+                    <i class="fa-solid fa-download"></i>
                 </button>
+
+                <button onclick="document.getElementById('jsonFileInput').click()" class="bg-slate-800/80 text-amber-300 p-2.5 rounded-2xl border border-slate-700/80 text-xs font-bold active:scale-95 shadow-sm" title="استرجاع نسخة JSON">
+                    <i class="fa-solid fa-upload"></i>
+                </button>
+
                 <button onclick="exportToExcel()" class="bg-emerald-950/60 text-emerald-400 p-2.5 rounded-2xl border border-emerald-500/30 text-xs font-bold active:scale-95 shadow-sm">
                     <i class="fa-solid fa-file-excel"></i>
                 </button>
+
                 <button onclick="lockApp()" class="bg-rose-950/50 text-rose-400 p-2.5 rounded-2xl border border-rose-500/30 text-xs font-bold active:scale-95 shadow-sm">
                     <i class="fa-solid fa-lock"></i>
                 </button>
@@ -197,6 +203,9 @@
 
         <!-- Month Filter Selector & Controls -->
         <div class="flex flex-wrap items-center gap-2.5 w-full md:w-auto justify-end">
+            <!-- Hidden File Input for Data Restore -->
+            <input type="file" id="jsonFileInput" accept=".json" onchange="handleJsonImport(event)" class="hidden">
+
             <div class="flex items-center bg-slate-900/90 rounded-2xl px-4 py-2.5 border border-indigo-500/30 text-xs font-bold text-slate-300 w-full sm:w-auto shadow-inner">
                 <i class="fa-regular fa-calendar-check text-indigo-400 ml-2 text-sm"></i>
                 <span class="ml-2 whitespace-nowrap text-slate-400">الشهر:</span>
@@ -217,9 +226,14 @@
                 </select>
             </div>
 
-            <button onclick="triggerCloudSyncManual()" class="hidden md:flex bg-slate-800/90 hover:bg-slate-700 text-indigo-300 active:scale-95 text-xs font-extrabold py-2.5 px-4 rounded-2xl border border-indigo-500/30 transition-all items-center justify-center gap-2 shadow-sm">
-                <i class="fa-solid fa-rotate text-sm text-indigo-400"></i>
-                <span>مزامنة</span>
+            <button onclick="exportJsonBackup()" class="hidden md:flex bg-slate-800/90 hover:bg-slate-700 text-indigo-300 active:scale-95 text-xs font-extrabold py-2.5 px-3.5 rounded-2xl border border-indigo-500/30 transition-all items-center justify-center gap-2 shadow-sm" title="حفظ نسخة احتياطية على جهازك">
+                <i class="fa-solid fa-download text-sm text-indigo-400"></i>
+                <span>نسخة JSON</span>
+            </button>
+
+            <button onclick="document.getElementById('jsonFileInput').click()" class="hidden md:flex bg-slate-800/90 hover:bg-slate-700 text-amber-300 active:scale-95 text-xs font-extrabold py-2.5 px-3.5 rounded-2xl border border-amber-500/30 transition-all items-center justify-center gap-2 shadow-sm" title="استرجاع بيانات من ملف JSON">
+                <i class="fa-solid fa-upload text-sm text-amber-400"></i>
+                <span>استرجاع</span>
             </button>
 
             <button onclick="exportToExcel()" class="hidden md:flex bg-gradient-to-r from-emerald-600 via-teal-600 to-cyan-600 hover:opacity-95 active:scale-95 text-white text-xs font-extrabold py-2.5 px-4 rounded-2xl border border-emerald-400/30 transition-all items-center justify-center gap-2 shadow-lg glow-emerald">
@@ -550,18 +564,22 @@
             <i class="fa-solid fa-plus-circle text-violet-400 text-lg"></i>
             <span>إضافة</span>
         </button>
-        <button onclick="triggerCloudSyncManual()" class="flex flex-col items-center text-slate-300 hover:text-white text-[10px] font-bold gap-1">
-            <i class="fa-solid fa-rotate text-indigo-400 text-lg"></i>
-            <span>مزامنة</span>
+
+        <button onclick="exportJsonBackup()" class="flex flex-col items-center text-slate-300 hover:text-white text-[10px] font-bold gap-1">
+            <i class="fa-solid fa-download text-indigo-400 text-lg"></i>
+            <span>نسخة</span>
         </button>
-        <button onclick="openTargetModal()" class="flex flex-col items-center text-slate-300 hover:text-white text-[10px] font-bold gap-1">
-            <i class="fa-solid fa-bullseye text-amber-400 text-lg"></i>
-            <span>الهدف</span>
+
+        <button onclick="document.getElementById('jsonFileInput').click()" class="flex flex-col items-center text-slate-300 hover:text-white text-[10px] font-bold gap-1">
+            <i class="fa-solid fa-upload text-amber-400 text-lg"></i>
+            <span>استرجاع</span>
         </button>
+
         <button onclick="exportToExcel()" class="flex flex-col items-center text-slate-300 hover:text-white text-[10px] font-bold gap-1">
             <i class="fa-solid fa-file-excel text-emerald-400 text-lg"></i>
             <span>إكسيل</span>
         </button>
+
         <button onclick="lockApp()" class="flex flex-col items-center text-slate-300 hover:text-white text-[10px] font-bold gap-1">
             <i class="fa-solid fa-lock text-rose-400 text-lg"></i>
             <span>قفل</span>
@@ -755,9 +773,6 @@
             }
 
             saveLocalData();
-            if (window.saveTxToCloud) {
-                window.saveTxToCloud(itemPayload);
-            }
             updateDashboard();
         };
 
@@ -816,9 +831,6 @@
             window.transactions = window.transactions.filter(x => x.id !== deletedId);
             closeDeleteModal();
             saveLocalData();
-            if (window.deleteTxFromCloud) {
-                window.deleteTxFromCloud(deletedId);
-            }
             updateDashboard();
             showToast('تم الحذف بنجاح 🗑️');
         };
@@ -841,9 +853,6 @@
             if (val && val > 0) {
                 window.savingsGoal = val;
                 localStorage.setItem('my_savings_goal', val.toString());
-                if (window.saveGoalToCloud) {
-                    window.saveGoalToCloud(val);
-                }
                 closeTargetModal();
                 updateDashboard();
                 showToast('تم تحديث هدف التحويشة 🎯');
@@ -858,11 +867,7 @@
             const existingIndex = window.transactions.findIndex(x => x.category === categoryName && x.month === selectedMonth);
 
             if (existingIndex !== -1) {
-                const removedItem = window.transactions[existingIndex];
                 window.transactions.splice(existingIndex, 1);
-                if (window.deleteTxFromCloud) {
-                    window.deleteTxFromCloud(removedItem.id);
-                }
                 showToast(`تم إلغاء سداد ${categoryName}`);
             } else {
                 let amount = 1000;
@@ -881,14 +886,54 @@
                     type: 'EXPENSE'
                 };
                 window.transactions.unshift(newObligation);
-                if (window.saveTxToCloud) {
-                    window.saveTxToCloud(newObligation);
-                }
                 showToast(`تم تسديد ${categoryName} بنجاح ✅`);
             }
 
             saveLocalData();
             updateDashboard();
+        };
+
+        window.exportJsonBackup = function() {
+            triggerHaptic();
+            const backupData = {
+                transactions: window.transactions || [],
+                savingsGoal: window.savingsGoal || 50000,
+                exportDate: new Date().toISOString()
+            };
+            const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(backupData, null, 2));
+            const downloadAnchor = document.createElement('a');
+            downloadAnchor.setAttribute("href", dataStr);
+            downloadAnchor.setAttribute("download", `my_wallet_backup_${new Date().toISOString().slice(0, 10)}.json`);
+            document.body.appendChild(downloadAnchor);
+            downloadAnchor.click();
+            downloadAnchor.remove();
+            showToast('تم تصدير ملف النسخة الاحتياطية 📁');
+        };
+
+        window.handleJsonImport = function(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                try {
+                    const parsed = JSON.parse(e.target.result);
+                    if (Array.isArray(parsed.transactions)) {
+                        window.transactions = parsed.transactions;
+                        saveLocalData();
+                    }
+                    if (parsed.savingsGoal) {
+                        window.savingsGoal = parsed.savingsGoal;
+                        localStorage.setItem('my_savings_goal', window.savingsGoal.toString());
+                    }
+                    updateDashboard();
+                    showToast('تم استرجاع البيانات بنجاح 🎉');
+                } catch (err) {
+                    showToast('عفواً، ملف النسخة الاحتياطية غير صالح ❌');
+                }
+            };
+            reader.readAsText(file);
+            event.target.value = '';
         };
 
         let histogramChart = null;
@@ -1189,153 +1234,6 @@
 
             loadLocalData();
         });
-    </script>
-
-    <!-- Firebase Realtime Cloud Synchronization Script -->
-    <script type="module">
-        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
-        import { getAuth, signInAnonymously, signInWithCustomToken, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
-        import { getFirestore, doc, setDoc, collection, onSnapshot, deleteDoc, writeBatch } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
-
-        const appId = typeof __app_id !== 'undefined' ? __app_id : 'my-wallet-app';
-        const firebaseConfig = typeof __firebase_config !== 'undefined' ? JSON.parse(__firebase_config) : null;
-
-        let db = null;
-        let auth = null;
-        let currentUser = null;
-        let isFirstSync = true;
-
-        if (firebaseConfig) {
-            const app = initializeApp(firebaseConfig);
-            db = getFirestore(app);
-            auth = getAuth(app);
-
-            async function initAuth() {
-                try {
-                    if (typeof __initial_auth_token !== 'undefined' && __initial_auth_token) {
-                        await signInWithCustomToken(auth, __initial_auth_token);
-                    } else {
-                        await signInAnonymously(auth);
-                    }
-                } catch(e) {
-                    console.error("Auth init error:", e);
-                }
-            }
-
-            onAuthStateChanged(auth, (user) => {
-                currentUser = user;
-                if (user) {
-                    setupRealtimeSync();
-                }
-            });
-
-            initAuth();
-        }
-
-        function setupRealtimeSync() {
-            if (!db || !currentUser) return;
-
-            // Listen to Transactions Collection
-            const txColRef = collection(db, 'artifacts', appId, 'public', 'data', 'transactions');
-            onSnapshot(txColRef, async (snapshot) => {
-                const cloudTxs = [];
-                snapshot.forEach(docSnap => {
-                    cloudTxs.push({ id: docSnap.id, ...docSnap.data() });
-                });
-
-                if (cloudTxs.length > 0) {
-                    cloudTxs.sort((a,b) => (b.date || '').localeCompare(a.date || '') || b.id.localeCompare(a.id));
-                    window.transactions = cloudTxs;
-                    localStorage.setItem('personal_wallet_transactions', JSON.stringify(cloudTxs));
-                    if (typeof window.updateDashboard === 'function') {
-                        window.updateDashboard();
-                    }
-                } else if (isFirstSync && window.transactions && window.transactions.length > 0) {
-                    // Seed initial local transactions to cloud if cloud is empty
-                    try {
-                        const batch = writeBatch(db);
-                        window.transactions.forEach(item => {
-                            const docRef = doc(db, 'artifacts', appId, 'public', 'data', 'transactions', item.id);
-                            batch.set(docRef, item, { merge: true });
-                        });
-                        await batch.commit();
-                    } catch (err) {
-                        console.error("Error seeding cloud:", err);
-                    }
-                }
-                isFirstSync = false;
-                updateCloudBadge(true);
-            }, (error) => {
-                console.error("Realtime Sync Error:", error);
-                updateCloudBadge(false);
-            });
-
-            // Listen to Savings Goal Setting
-            const settingsDocRef = doc(db, 'artifacts', appId, 'public', 'data', 'settings', 'goal');
-            onSnapshot(settingsDocRef, (docSnap) => {
-                if (docSnap.exists() && docSnap.data().savingsGoal) {
-                    window.savingsGoal = docSnap.data().savingsGoal;
-                    localStorage.setItem('my_savings_goal', window.savingsGoal.toString());
-                    if (typeof window.updateDashboard === 'function') {
-                        window.updateDashboard();
-                    }
-                } else if (window.savingsGoal) {
-                    setDoc(settingsDocRef, { savingsGoal: window.savingsGoal }, { merge: true }).catch(console.error);
-                }
-            }, (err) => console.error(err));
-        }
-
-        function updateCloudBadge(isConnected) {
-            const badge = document.getElementById('cloudSyncBadge');
-            if (badge) {
-                if (isConnected) {
-                    badge.innerHTML = `<span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span> متزامن مع الموبايل واللاب ☁️`;
-                    badge.className = "text-[11px] text-emerald-400 font-bold flex items-center gap-1.5 bg-emerald-500/10 px-2.5 py-0.5 rounded-xl border border-emerald-500/20";
-                } else {
-                    badge.innerHTML = `<span class="w-2 h-2 rounded-full bg-amber-400"></span> حفظ محلي 📱`;
-                    badge.className = "text-[11px] text-amber-400 font-bold flex items-center gap-1.5 bg-amber-500/10 px-2.5 py-0.5 rounded-xl border border-amber-500/20";
-                }
-            }
-        }
-
-        window.triggerCloudSyncManual = function() {
-            if (typeof window.updateDashboard === 'function') {
-                window.updateDashboard();
-            }
-            if (window.showToast) {
-                window.showToast('جاري تحديث المزامنة السحابية 🔄');
-            }
-        };
-
-        window.saveTxToCloud = async function(txItem) {
-            if (!db || !currentUser) return;
-            try {
-                const docRef = doc(db, 'artifacts', appId, 'public', 'data', 'transactions', txItem.id);
-                await setDoc(docRef, txItem, { merge: true });
-            } catch(e) {
-                console.error("Failed to save to cloud:", e);
-            }
-        };
-
-        window.deleteTxFromCloud = async function(docId) {
-            if (!db || !currentUser) me;
-            try {
-                const docRef = doc(db, 'artifacts', appId, 'public', 'data', 'transactions', docId);
-                await deleteDoc(docRef);
-            } catch(e) {
-                console.error("Failed to delete from cloud:", e);
-            }
-        };
-
-        window.saveGoalToCloud = async function(goal) {
-            if (!db || !currentUser) return;
-            try {
-                const docRef = doc(db, 'artifacts', appId, 'public', 'data', 'settings', 'goal');
-                await setDoc(docRef, { savingsGoal: goal }, { merge: true });
-            } catch(e) {
-                console.error("Failed to save goal:", e);
-            }
-        };
     </script>
 </body>
 </html>
