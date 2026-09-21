@@ -4,13 +4,13 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>محفظتي الشخصية - إدارة المصاريف والتحويش</title>
-    <!-- Tailwind CSS CDN -->
+    <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
-    <!-- FontAwesome CDN -->
+    <!-- FontAwesome Icons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <!-- Chart.js CDN -->
+    <!-- Chart.js -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <!-- SheetJS (XLSX) CDN -->
+    <!-- SheetJS Excel -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
     <!-- Google Fonts -->
     <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700;800;900&display=swap" rel="stylesheet">
@@ -20,12 +20,12 @@
             theme: {
                 extend: {
                     colors: {
-                        darkbg: '#0b0f19',
-                        cardbg: 'rgba(23, 32, 54, 0.75)',
+                        darkbg: '#090d16',
+                        glassbg: 'rgba(18, 26, 43, 0.75)',
                         neoncyan: '#00f2fe',
                         neongreen: '#10b981',
                         neonpurple: '#8b5cf6',
-                        neongold: '#f59e0b',
+                        neongold: '#fbbf24',
                         neonrose: '#f43f5e'
                     },
                     fontFamily: {
@@ -39,33 +39,44 @@
     <style>
         body {
             font-family: 'Tajawal', sans-serif;
-            background: radial-gradient(circle at top left, #1e1b4b 0%, #0b0f19 50%, #05070e 100%);
+            background: radial-gradient(circle at top right, #1e1b4b 0%, #090d16 60%, #030509 100%);
             color: #f8fafc;
             min-height: 100vh;
         }
 
-        .glass-card {
-            background: rgba(23, 32, 54, 0.65);
-            backdrop-filter: blur(16px);
-            -webkit-backdrop-filter: blur(16px);
+        .glass-panel {
+            background: rgba(18, 26, 43, 0.7);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
             border: 1px solid rgba(255, 255, 255, 0.08);
-            box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
+            box-shadow: 0 12px 40px 0 rgba(0, 0, 0, 0.45);
         }
 
         .glass-input {
-            background: rgba(15, 23, 42, 0.6);
+            background: rgba(10, 15, 29, 0.6);
             border: 1px solid rgba(255, 255, 255, 0.12);
             color: #fff;
+            transition: all 0.3s ease;
         }
 
         .glass-input:focus {
             border-color: #00f2fe;
+            box-shadow: 0 0 15px rgba(0, 242, 254, 0.3);
             outline: none;
-            box-shadow: 0 0 12px rgba(0, 242, 254, 0.3);
+        }
+
+        .glow-button {
+            background: linear-gradient(135deg, #00f2fe 0%, #4f46e5 100%);
+            box-shadow: 0 4px 20px rgba(0, 242, 254, 0.35);
+        }
+
+        .glow-button:hover {
+            box-shadow: 0 6px 25px rgba(0, 242, 254, 0.5);
+            transform: translateY(-1px);
         }
 
         .pulse-online {
-            box-shadow: 0 0 10px #10b981;
+            box-shadow: 0 0 12px #10b981;
             animation: pulse 2s infinite;
         }
 
@@ -76,24 +87,24 @@
         }
     </style>
 </head>
-<body class="p-3 md:p-6 pb-20">
+<body class="p-3 md:p-6 pb-24">
 
     <!-- Passcode Lock Screen -->
-    <div id="lockScreen" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/95 backdrop-blur-xl">
-        <div class="glass-card p-8 rounded-3xl w-full max-w-md text-center border border-white/10 shadow-2xl">
-            <div class="w-20 h-20 bg-gradient-to-tr from-cyan-500 to-indigo-600 rounded-2xl mx-auto flex items-center justify-center mb-6 shadow-lg shadow-cyan-500/30">
-                <i class="fa-solid fa-user-lock text-3xl text-white"></i>
+    <div id="lockScreen" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/95 backdrop-blur-2xl">
+        <div class="glass-panel p-8 rounded-3xl w-full max-w-md text-center border border-white/10 shadow-2xl">
+            <div class="w-20 h-20 bg-gradient-to-tr from-cyan-500 via-indigo-600 to-purple-600 rounded-3xl mx-auto flex items-center justify-center mb-6 shadow-xl shadow-cyan-500/20">
+                <i class="fa-solid fa-shield-halved text-3xl text-white"></i>
             </div>
-            <h2 class="text-2xl font-bold mb-2">محفظتي الشخصية</h2>
-            <p class="text-slate-400 text-sm mb-6">أدخل الرقم السري للوصول للبيانات</p>
+            <h2 class="text-2xl font-black mb-2 bg-gradient-to-r from-cyan-400 to-purple-400 bg-clip-text text-transparent">محفظتي الشخصية</h2>
+            <p class="text-slate-400 text-sm mb-6">أدخل الرقم السري للوصول</p>
 
             <div class="mb-6">
                 <input type="password" id="pinInput" maxlength="6" pattern="\d*" inputmode="numeric" 
-                       class="w-full text-center text-3xl tracking-widest py-3 rounded-2xl glass-input font-bold" 
+                       class="w-full text-center text-3xl tracking-widest py-3.5 rounded-2xl glass-input font-bold" 
                        placeholder="••••" onkeyup="checkPinAuto(event)">
             </div>
 
-            <button onclick="verifyPin()" class="w-full py-4 bg-gradient-to-r from-cyan-500 to-blue-600 hover:from-cyan-400 hover:to-blue-500 rounded-2xl font-bold text-lg shadow-lg shadow-cyan-500/25 transition-all">
+            <button onclick="verifyPin()" class="w-full py-4 glow-button rounded-2xl font-bold text-lg text-white transition-all">
                 فتح المحفظة <i class="fa-solid fa-arrow-left mr-2"></i>
             </button>
             <p id="pinError" class="text-rose-400 text-sm mt-3 hidden">الرقم السري غير صحيح، حاول مرة أخرى</p>
@@ -104,36 +115,39 @@
     <div id="appContainer" class="max-w-4xl mx-auto hidden space-y-6">
 
         <!-- Top Header -->
-        <header class="glass-card p-4 rounded-3xl flex flex-wrap justify-between items-center gap-4">
+        <header class="glass-panel p-4 rounded-3xl flex flex-wrap justify-between items-center gap-4">
             <div class="flex items-center gap-3">
-                <div class="w-12 h-12 bg-gradient-to-tr from-purple-600 to-indigo-600 rounded-2xl flex items-center justify-center shadow-md">
+                <div class="w-12 h-12 bg-gradient-to-tr from-purple-600 to-indigo-600 rounded-2xl flex items-center justify-center shadow-lg shadow-purple-500/30">
                     <i class="fa-solid fa-wallet text-xl text-white"></i>
                 </div>
                 <div>
-                    <h1 class="text-xl font-black bg-gradient-to-r from-cyan-400 via-teal-300 to-indigo-400 bg-clip-text text-transparent">محفظتي الشخصية</h1>
+                    <h1 class="text-xl font-black bg-gradient-to-r from-cyan-400 via-teal-300 to-purple-400 bg-clip-text text-transparent">محفظتي الشخصية</h1>
                     <div id="syncBadge" class="inline-flex items-center gap-2 px-3 py-0.5 rounded-full bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 text-xs mt-1">
                         <span class="w-2 h-2 rounded-full bg-emerald-400 pulse-online"></span>
-                        <span id="syncText">☁️ متصل ومتزامن سحابياً</span>
+                        <span id="syncText">⚡ متصل ومقترن سحابياً</span>
                     </div>
                 </div>
             </div>
 
             <div class="flex items-center gap-2">
-                <button onclick="manualSync()" title="إعادة مزامنة الآن" class="p-3 glass-card rounded-2xl hover:bg-white/10 text-cyan-400 transition">
+                <button onclick="openSyncSettings()" title="رمز الاقتران" class="px-3 py-2 glass-panel rounded-2xl hover:bg-white/10 text-cyan-400 text-xs font-bold flex items-center gap-1.5 transition">
+                    <i class="fa-solid fa-key"></i> <span id="syncCodeLabel">ahmed_2607</span>
+                </button>
+                <button onclick="manualSync()" title="إعادة مزامنة الآن" class="p-3 glass-panel rounded-2xl hover:bg-white/10 text-cyan-400 transition">
                     <i class="fa-solid fa-rotate-right" id="syncSpinner"></i>
                 </button>
-                <button onclick="exportToExcel()" title="تصدير إكسيل" class="p-3 glass-card rounded-2xl hover:bg-white/10 text-emerald-400 transition">
+                <button onclick="exportToExcel()" title="تصدير إكسيل" class="p-3 glass-panel rounded-2xl hover:bg-white/10 text-emerald-400 transition">
                     <i class="fa-solid fa-file-excel"></i>
                 </button>
-                <button onclick="lockApp()" title="قفل التطبيق" class="p-3 glass-card rounded-2xl hover:bg-white/10 text-rose-400 transition">
+                <button onclick="lockApp()" title="قفل التطبيق" class="p-3 glass-panel rounded-2xl hover:bg-white/10 text-rose-400 transition">
                     <i class="fa-solid fa-lock"></i>
                 </button>
             </div>
         </header>
 
         <!-- Savings Vault Card -->
-        <section class="glass-card p-6 rounded-3xl relative overflow-hidden border border-amber-500/20">
-            <div class="absolute -right-10 -bottom-10 w-40 h-40 bg-amber-500/10 rounded-full blur-3xl pointer-events-none"></div>
+        <section class="glass-panel p-6 rounded-3xl relative overflow-hidden border border-amber-500/20">
+            <div class="absolute -right-10 -bottom-10 w-44 h-44 bg-amber-500/10 rounded-full blur-3xl pointer-events-none"></div>
             <div class="flex justify-between items-start mb-4">
                 <div>
                     <span class="text-xs font-bold text-amber-400 uppercase tracking-wider block mb-1">خزينة التحويش (Savings Vault)</span>
@@ -149,49 +163,49 @@
                     <span>نسبة الإنجاز للهدف (<span id="targetAmountDisplay">0</span> ج.م)</span>
                     <span id="savingsProgressPercent" class="font-bold text-amber-400">0%</span>
                 </div>
-                <div class="w-full h-3 bg-slate-800 rounded-full overflow-hidden p-0.5 border border-white/5">
-                    <div id="savingsProgressBar" class="h-full bg-gradient-to-r from-amber-500 to-emerald-400 rounded-full transition-all duration-500" style="width: 0%"></div>
+                <div class="w-full h-3.5 bg-slate-900/80 rounded-full overflow-hidden p-0.5 border border-white/5">
+                    <div id="savingsProgressBar" class="h-full bg-gradient-to-r from-amber-500 via-emerald-400 to-cyan-400 rounded-full transition-all duration-500" style="width: 0%"></div>
                 </div>
             </div>
         </section>
 
         <!-- Monthly Commitments Checklist -->
-        <section class="glass-card p-6 rounded-3xl">
+        <section class="glass-panel p-6 rounded-3xl">
             <h3 class="text-lg font-bold mb-4 text-purple-300 flex items-center gap-2">
                 <i class="fa-solid fa-calendar-check text-purple-400"></i> الالتزامات والأقساط الشهرية
             </h3>
             <div class="grid grid-cols-1 md:grid-cols-3 gap-3">
                 <!-- Gamya 1 -->
-                <label class="glass-card p-4 rounded-2xl flex items-center justify-between cursor-pointer hover:bg-white/5 transition">
+                <label class="glass-panel p-4 rounded-2xl flex items-center justify-between cursor-pointer hover:bg-white/5 transition">
                     <div class="flex items-center gap-3">
                         <input type="checkbox" id="chkGamya1" onchange="toggleCommitment('gamya1')" class="w-5 h-5 rounded text-purple-600 focus:ring-purple-500 bg-slate-800 border-white/20">
                         <span class="font-bold text-sm">جمعية 1</span>
                     </div>
-                    <span class="text-xs px-2 py-1 rounded-lg bg-purple-500/20 text-purple-300" id="badgeGamya1">لم تدفع</span>
+                    <span class="text-xs px-2.5 py-1 rounded-lg" id="badgeGamya1">لم تدفع</span>
                 </label>
 
                 <!-- Gamya 2 -->
-                <label class="glass-card p-4 rounded-2xl flex items-center justify-between cursor-pointer hover:bg-white/5 transition">
+                <label class="glass-panel p-4 rounded-2xl flex items-center justify-between cursor-pointer hover:bg-white/5 transition">
                     <div class="flex items-center gap-3">
                         <input type="checkbox" id="chkGamya2" onchange="toggleCommitment('gamya2')" class="w-5 h-5 rounded text-indigo-600 focus:ring-indigo-500 bg-slate-800 border-white/20">
                         <span class="font-bold text-sm">جمعية 2</span>
                     </div>
-                    <span class="text-xs px-2 py-1 rounded-lg bg-indigo-500/20 text-indigo-300" id="badgeGamya2">لم تدفع</span>
+                    <span class="text-xs px-2.5 py-1 rounded-lg" id="badgeGamya2">لم تدفع</span>
                 </label>
 
                 <!-- AC Installment -->
-                <label class="glass-card p-4 rounded-2xl flex items-center justify-between cursor-pointer hover:bg-white/5 transition">
+                <label class="glass-panel p-4 rounded-2xl flex items-center justify-between cursor-pointer hover:bg-white/5 transition">
                     <div class="flex items-center gap-3">
                         <input type="checkbox" id="chkAC" onchange="toggleCommitment('ac')" class="w-5 h-5 rounded text-cyan-600 focus:ring-cyan-500 bg-slate-800 border-white/20">
                         <span class="font-bold text-sm">قسط التكييف ❄️</span>
                     </div>
-                    <span class="text-xs px-2 py-1 rounded-lg bg-cyan-500/20 text-cyan-300" id="badgeAC">لم يدفع</span>
+                    <span class="text-xs px-2.5 py-1 rounded-lg" id="badgeAC">لم يدفع</span>
                 </label>
             </div>
         </section>
 
         <!-- New Transaction Form -->
-        <section class="glass-card p-6 rounded-3xl">
+        <section class="glass-panel p-6 rounded-3xl">
             <h3 class="text-lg font-bold mb-4 text-cyan-300 flex items-center gap-2">
                 <i class="fa-solid fa-plus-circle"></i> تسجيل مصروف أو إضافة للتحويشة
             </h3>
@@ -199,11 +213,11 @@
                 <div class="grid grid-cols-1 md:grid-cols-3 gap-3">
                     <div>
                         <label class="block text-xs text-slate-400 mb-1">المبلغ (ج.م)</label>
-                        <input type="number" step="any" id="txAmount" required class="w-full p-3 rounded-xl glass-input font-bold" placeholder="0.00">
+                        <input type="number" step="any" id="txAmount" required class="w-full p-3.5 rounded-xl glass-input font-bold" placeholder="0.00">
                     </div>
                     <div>
                         <label class="block text-xs text-slate-400 mb-1">القسم</label>
-                        <select id="txCategory" required class="w-full p-3 rounded-xl glass-input font-bold">
+                        <select id="txCategory" required class="w-full p-3.5 rounded-xl glass-input font-bold">
                             <option value="مواصلات">🚌 مواصلات</option>
                             <option value="جمعية 1">🤝 جمعية 1</option>
                             <option value="جمعية 2">🤝 جمعية 2</option>
@@ -214,10 +228,10 @@
                     </div>
                     <div>
                         <label class="block text-xs text-slate-400 mb-1">ملاحظة / البيان</label>
-                        <input type="text" id="txNote" class="w-full p-3 rounded-xl glass-input" placeholder="مثال: قهوة الصباح، مواصلات الشغل...">
+                        <input type="text" id="txNote" class="w-full p-3.5 rounded-xl glass-input" placeholder="مثال: قهوة، مواصلات الشغل...">
                     </div>
                 </div>
-                <button type="submit" class="w-full py-3.5 bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-400 hover:to-teal-500 rounded-xl font-bold text-white shadow-lg shadow-emerald-500/20 transition">
+                <button type="submit" class="w-full py-4 bg-gradient-to-r from-emerald-500 via-teal-500 to-cyan-500 hover:from-emerald-400 hover:to-cyan-400 rounded-xl font-bold text-white shadow-lg shadow-emerald-500/25 transition">
                     <i class="fa-solid fa-check ml-2"></i> حفظ وصرف الحركة
                 </button>
             </form>
@@ -226,7 +240,7 @@
         <!-- Analytics & Category Cards -->
         <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
             <!-- Chart Card -->
-            <div class="glass-card p-6 rounded-3xl flex flex-col justify-between">
+            <div class="glass-panel p-6 rounded-3xl flex flex-col justify-between">
                 <h3 class="text-lg font-bold mb-2 text-slate-200">توزيع المصاريف والتحويش</h3>
                 <div class="relative w-full h-64 flex items-center justify-center">
                     <canvas id="expensesChart"></canvas>
@@ -234,7 +248,7 @@
             </div>
 
             <!-- Categories Breakdown -->
-            <div class="glass-card p-6 rounded-3xl space-y-3">
+            <div class="glass-panel p-6 rounded-3xl space-y-3">
                 <h3 class="text-lg font-bold mb-2 text-slate-200">إجمالي المصاريف حسب البند</h3>
                 <div id="categoryTotalsList" class="space-y-2 max-h-64 overflow-y-auto pr-1">
                     <!-- Dynamic categories -->
@@ -243,7 +257,7 @@
         </div>
 
         <!-- Recent Transactions Log -->
-        <section class="glass-card p-6 rounded-3xl">
+        <section class="glass-panel p-6 rounded-3xl">
             <div class="flex justify-between items-center mb-4">
                 <h3 class="text-lg font-bold text-slate-200">سجل المعاملات الأخيرة</h3>
                 <span id="txCount" class="text-xs bg-slate-800 px-3 py-1 rounded-full text-slate-400">0 معاملة</span>
@@ -269,7 +283,7 @@
 
     <!-- Target Edit Modal -->
     <div id="targetModal" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-md hidden">
-        <div class="glass-card p-6 rounded-3xl w-full max-w-sm space-y-4">
+        <div class="glass-panel p-6 rounded-3xl w-full max-w-sm space-y-4">
             <h3 class="text-lg font-bold text-amber-300">تعديل هدف التحويشة</h3>
             <div>
                 <label class="block text-xs text-slate-400 mb-1">المبلغ المستهدف (ج.م)</label>
@@ -282,11 +296,24 @@
         </div>
     </div>
 
+    <!-- Sync Pairing Modal -->
+    <div id="syncModal" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-md hidden">
+        <div class="glass-panel p-6 rounded-3xl w-full max-w-sm space-y-4">
+            <h3 class="text-lg font-bold text-cyan-300">رمز الاقتران السحابي</h3>
+            <p class="text-xs text-slate-300 leading-relaxed">تأكد أن هذا الرمز متطابق تماماً في اللابتوب والموبايل لضمان المزامنة الفورية بين الجهازين:</p>
+            <div>
+                <input type="text" id="syncCodeInput" class="w-full p-3 rounded-xl glass-input font-bold text-center tracking-wider text-cyan-400">
+            </div>
+            <div class="flex gap-2">
+                <button onclick="saveSyncCode()" class="flex-1 py-3 glow-button font-bold text-white rounded-xl">تأكيد واقتران</button>
+                <button onclick="closeSyncModal()" class="px-4 py-3 bg-slate-800 text-slate-300 font-bold rounded-xl">إلغاء</button>
+            </div>
+        </div>
+    </div>
+
     <script>
-        // CONFIG & CLOUD ENGINE (Shared Cloud Bin Sync)
         const CORRECT_PIN = "2607";
-        const SYNC_BIN_ID = "ahmed_wallet_2607_cloud_v2"; // Unique Cloud Key
-        const CLOUD_API = `https://kvdb.io/4T8xM9Yq2zK3wL5v7P/${SYNC_BIN_ID}`;
+        let syncRoomKey = localStorage.getItem('wallet_sync_room_id') || 'ahmed_2607';
 
         let appData = {
             savingsGoal: 50000,
@@ -314,24 +341,38 @@
         }
 
         function lockApp() {
-            document.getElementById('lockScreen').classList.remove('hidden');
+            document.getElementById('lockScreen').classList.add('hidden');
             document.getElementById('appContainer').classList.add('hidden');
             document.getElementById('pinInput').value = '';
             document.getElementById('pinError').classList.add('hidden');
         }
 
-        // INITIALIZATION & CLOUD SYNC
+        // INITIALIZATION & LIGHTWEIGHT CLOUD SYNC
         async function initApp() {
+            document.getElementById('syncCodeLabel').innerText = syncRoomKey;
             loadFromLocalStorage();
             renderUI();
             await fetchFromCloud();
             
-            // Auto sync every 5 seconds
-            setInterval(fetchFromCloud, 5000);
+            // Auto sync poll every 4 seconds
+            setInterval(fetchFromCloud, 4000);
+        }
+
+        function getCloudUrl() {
+            return `https://api.npoint.io/${hashString(syncRoomKey)}`;
+        }
+
+        function hashString(str) {
+            let hash = 0;
+            for (let i = 0; i < str.length; i++) {
+                hash = ((hash << 5) - hash) + str.charCodeAt(i);
+                hash |= 0;
+            }
+            return 'b' + Math.abs(hash).toString(36);
         }
 
         function loadFromLocalStorage() {
-            const local = localStorage.getItem('my_personal_wallet_data');
+            const local = localStorage.getItem('my_personal_wallet_data_v3');
             if (local) {
                 try { appData = JSON.parse(local); } catch (e) { console.error(e); }
             }
@@ -339,45 +380,39 @@
 
         function saveLocallyAndSync() {
             appData.updatedAt = Date.now();
-            localStorage.setItem('my_personal_wallet_data', JSON.stringify(appData));
+            localStorage.setItem('my_personal_wallet_data_v3', JSON.stringify(appData));
             renderUI();
             pushToCloud();
         }
 
         async function fetchFromCloud() {
             const spinner = document.getElementById('syncSpinner');
-            spinner.classList.add('fa-spin');
+            if (spinner) spinner.classList.add('fa-spin');
             
             try {
-                const res = await fetch(CLOUD_API);
+                const res = await fetch(getCloudUrl());
                 if (res.ok) {
                     const remoteData = await res.json();
                     if (remoteData && remoteData.updatedAt > (appData.updatedAt || 0)) {
                         appData = remoteData;
-                        localStorage.setItem('my_personal_wallet_data', JSON.stringify(appData));
+                        localStorage.setItem('my_personal_wallet_data_v3', JSON.stringify(appData));
                         renderUI();
                     }
-                    setSyncStatus(true, "☁️ متصل ومتزامن سحابياً");
-                } else if (res.status === 404) {
-                    // First time initialization on cloud
-                    await pushToCloud();
                 }
             } catch (err) {
-                console.warn("Cloud sync check fallback to local persistence:", err);
-                setSyncStatus(true, "☁️ متصل (مؤقت محلي)");
+                console.warn("Cloud pull fallback:", err);
             } finally {
-                setTimeout(() => spinner.classList.remove('fa-spin'), 500);
+                if (spinner) setTimeout(() => spinner.classList.remove('fa-spin'), 400);
             }
         }
 
         async function pushToCloud() {
             try {
-                await fetch(CLOUD_API, {
+                await fetch(getCloudUrl(), {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify(appData)
                 });
-                setSyncStatus(true, "☁️ متصل ومتزامن سحابياً");
             } catch (e) {
                 console.error("Cloud push failed:", e);
             }
@@ -387,11 +422,27 @@
             fetchFromCloud();
         }
 
-        function setSyncStatus(isOnline, text) {
-            document.getElementById('syncText').innerText = text;
+        function openSyncSettings() {
+            document.getElementById('syncCodeInput').value = syncRoomKey;
+            document.getElementById('syncModal').classList.remove('hidden');
         }
 
-        // DATA CALCULATIONS & RENDER
+        function closeSyncModal() {
+            document.getElementById('syncModal').classList.add('hidden');
+        }
+
+        function saveSyncCode() {
+            const val = document.getElementById('syncCodeInput').value.trim();
+            if (val) {
+                syncRoomKey = val;
+                localStorage.setItem('wallet_sync_room_id', syncRoomKey);
+                document.getElementById('syncCodeLabel').innerText = syncRoomKey;
+                closeSyncModal();
+                fetchFromCloud();
+            }
+        }
+
+        // UI RENDERERS
         function renderUI() {
             // Commitments checkboxes
             ['gamya1', 'gamya2', 'ac'].forEach(key => {
@@ -401,7 +452,7 @@
                 if (chk) chk.checked = isPaid;
                 if (badge) {
                     badge.innerText = isPaid ? "تم الدفع ✅" : "لم تدفع";
-                    badge.className = `text-xs px-2 py-1 rounded-lg ${isPaid ? 'bg-emerald-500/20 text-emerald-300 font-bold' : 'bg-slate-700/50 text-slate-400'}`;
+                    badge.className = `text-xs px-2.5 py-1 rounded-lg ${isPaid ? 'bg-emerald-500/20 text-emerald-300 font-bold border border-emerald-500/30' : 'bg-slate-800 text-slate-400'}`;
                 }
             });
 
@@ -440,7 +491,7 @@
             Object.keys(catTotals).forEach(cat => {
                 const val = catTotals[cat];
                 catListEl.innerHTML += `
-                    <div class="flex justify-between items-center p-3 rounded-xl glass-card">
+                    <div class="flex justify-between items-center p-3 rounded-xl glass-panel">
                         <span class="text-sm font-semibold">${cat}</span>
                         <span class="font-bold text-cyan-300">${val.toLocaleString('ar-EG')} ج.م</span>
                     </div>
@@ -520,7 +571,6 @@
             if (!appData.transactions) appData.transactions = [];
             appData.transactions.push(newTx);
 
-            // Auto check commitment if category matches
             if (category === 'جمعية 1') appData.commitments.gamya1 = true;
             if (category === 'جمعية 2') appData.commitments.gamya2 = true;
             if (category === 'قسط التكييف') appData.commitments.ac = true;
@@ -544,7 +594,7 @@
             saveLocallyAndSync();
         }
 
-        // TARGET GOAL MODAL
+        // MODAL HANDLERS
         function openTargetModal() {
             document.getElementById('targetInput').value = appData.savingsGoal || 50000;
             document.getElementById('targetModal').classList.remove('hidden');
