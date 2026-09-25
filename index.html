@@ -726,6 +726,11 @@
     if(state==="on") b.classList.add("on");
     if(state==="err") b.classList.add("err");
     $("syncBadgeText").textContent=text;
+    var line = $("syncStatusLine");
+    if(line){
+      line.textContent = text;
+      line.className = "status-line" + (state==="on" ? " ok" : (state==="err" ? " bad" : ""));
+    }
   }
 
   function persistTx(){
