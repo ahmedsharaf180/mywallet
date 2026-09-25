@@ -1,636 +1,940 @@
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>محفظتي الشخصية - إدارة المصاريف والتحويش</title>
-    <!-- Tailwind CSS -->
-    <script src="https://cdn.tailwindcss.com"></script>
-    <!-- FontAwesome Icons -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <!-- Chart.js -->
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <!-- SheetJS Excel -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
-    <!-- Google Fonts -->
-    <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700;800;900&display=swap" rel="stylesheet">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>دفتري — مصاريفي اليومية</title>
+<link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>📒</text></svg>">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Almarai:wght@400;700;800&family=Tajawal:wght@300;400;500;700&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+<style>
+  :root{
+    --ink:#1B2B34;
+    --ink-soft:#33454F;
+    --paper:#F7F3EA;
+    --paper-card:#FFFDF8;
+    --amber:#D98E2B;
+    --amber-deep:#B5701A;
+    --sage:#6F8768;
+    --rose:#B5544A;
+    --line:#E4DCC8;
+    --shadow: 0 1px 0 rgba(27,43,52,.06);
+    --radius: 4px;
+  }
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;}
+  body{
+    background:var(--paper);
+    color:var(--ink);
+    font-family:'Tajawal',sans-serif;
+    font-weight:400;
+    line-height:1.6;
+    min-height:100vh;
+    padding-bottom:60px;
+  }
+  body::before{
+    content:"";
+    position:fixed; inset:0;
+    background-image: linear-gradient(var(--line) 1px, transparent 1px);
+    background-size: 100% 42px;
+    opacity:.35;
+    pointer-events:none;
+    z-index:0;
+  }
+  .wrap{max-width:840px;margin:0 auto;padding:0 20px;position:relative;z-index:1;}
 
-    <script>
-        tailwind.config = {
-            theme: {
-                extend: {
-                    colors: {
-                        darkbg: '#090d16',
-                        glassbg: 'rgba(18, 26, 43, 0.75)',
-                        neoncyan: '#00f2fe',
-                        neongreen: '#10b981',
-                        neonpurple: '#8b5cf6',
-                        neongold: '#fbbf24',
-                        neonrose: '#f43f5e'
-                    },
-                    fontFamily: {
-                        tajawal: ['Tajawal', 'sans-serif']
-                    }
-                }
-            }
-        }
-    </script>
+  header.hero{
+    padding:42px 0 28px;
+    border-bottom:2px solid var(--ink);
+    margin-bottom:28px;
+  }
+  .hero-top{display:flex;justify-content:space-between;align-items:flex-start;gap:16px;flex-wrap:wrap;}
+  .brand-row{display:flex;align-items:center;gap:14px;}
+  .brand{font-family:'Almarai',sans-serif;font-weight:800;font-size:26px;letter-spacing:.5px;}
+  .brand span{color:var(--amber-deep);}
+  .sync-badge{
+    font-size:11.5px;border:1px solid var(--line);border-radius:20px;padding:4px 10px;
+    display:flex;align-items:center;gap:6px;color:var(--ink-soft);cursor:pointer;background:var(--paper-card);
+  }
+  .sync-badge .dot{width:7px;height:7px;border-radius:50%;background:var(--ink-soft);}
+  .sync-badge.on .dot{background:var(--sage);}
+  .sync-badge.err .dot{background:var(--rose);}
+  .subtitle{color:var(--ink-soft);font-size:14px;margin-top:4px;}
+  .month-switch{
+    display:flex;align-items:center;gap:10px;
+    font-family:'Almarai',sans-serif;
+  }
+  .month-switch button{
+    background:none;border:1.5px solid var(--ink);border-radius:50%;
+    width:32px;height:32px;font-size:16px;cursor:pointer;color:var(--ink);
+    display:flex;align-items:center;justify-content:center;
+    transition:.15s;
+  }
+  .month-switch button:hover{background:var(--ink);color:var(--paper-card);}
+  .month-label{font-weight:700;font-size:16px;min-width:120px;text-align:center;}
 
-    <style>
-        body {
-            font-family: 'Tajawal', sans-serif;
-            background: radial-gradient(circle at top right, #1e1b4b 0%, #090d16 60%, #030509 100%);
-            color: #f8fafc;
-            min-height: 100vh;
-        }
+  .hero-figure{
+    margin-top:26px;
+    display:flex;align-items:baseline;gap:14px;flex-wrap:wrap;
+  }
+  .hero-figure .amount{
+    font-family:'Almarai',sans-serif;font-weight:800;
+    font-size:56px;color:var(--ink);
+    line-height:1;
+  }
+  .hero-figure .amount small{font-size:22px;font-weight:700;color:var(--ink-soft);}
+  .hero-figure .amount-label{color:var(--ink-soft);font-size:14px;}
 
-        .glass-panel {
-            background: rgba(18, 26, 43, 0.7);
-            backdrop-filter: blur(20px);
-            -webkit-backdrop-filter: blur(20px);
-            border: 1px solid rgba(255, 255, 255, 0.08);
-            box-shadow: 0 12px 40px 0 rgba(0, 0, 0, 0.45);
-        }
+  .hero-sub-stats{
+    display:flex;gap:26px;margin-top:18px;flex-wrap:wrap;
+    font-size:13px;color:var(--ink-soft);
+  }
+  .hero-sub-stats b{color:var(--ink);font-family:'Almarai',sans-serif;}
 
-        .glass-input {
-            background: rgba(10, 15, 29, 0.6);
-            border: 1px solid rgba(255, 255, 255, 0.12);
-            color: #fff;
-            transition: all 0.3s ease;
-        }
+  section{margin-bottom:34px;}
+  h2{
+    font-family:'Almarai',sans-serif;font-size:15px;font-weight:700;
+    color:var(--ink-soft);
+    margin:0 0 14px;
+    display:flex;align-items:center;gap:10px;
+  }
+  h2::after{content:"";flex:1;height:1px;background:var(--line);}
+  h2 .h2-action{
+    font-size:12.5px;color:var(--amber-deep);cursor:pointer;font-weight:700;
+    flex:none;
+  }
 
-        .glass-input:focus {
-            border-color: #00f2fe;
-            box-shadow: 0 0 15px rgba(0, 242, 254, 0.3);
-            outline: none;
-        }
+  /* quick add fixed dues */
+  .dues{display:flex;flex-wrap:wrap;gap:10px;}
+  .due-chip{
+    background:var(--paper-card);
+    border:1px solid var(--line);
+    border-radius:var(--radius);
+    padding:10px 14px;
+    display:flex;align-items:center;gap:10px;
+    font-size:14px;
+    box-shadow:var(--shadow);
+  }
+  .due-chip .dot{width:8px;height:8px;border-radius:50%;background:var(--sage);flex-shrink:0;}
+  .due-chip.done{opacity:.5;}
+  .due-chip.done .dot{background:var(--ink-soft);}
+  .due-chip b{font-family:'Almarai',sans-serif;}
+  .due-chip button{
+    margin-inline-start:6px;
+    background:var(--ink);color:var(--paper-card);border:none;
+    font-family:'Tajawal',sans-serif;
+    border-radius:3px;padding:5px 10px;font-size:12.5px;cursor:pointer;
+  }
+  .due-chip.done button{background:var(--line);color:var(--ink-soft);cursor:default;}
+  .due-chip small{color:var(--ink-soft);}
+  .empty-small{color:var(--ink-soft);font-size:13px;}
 
-        .glow-button {
-            background: linear-gradient(135deg, #00f2fe 0%, #4f46e5 100%);
-            box-shadow: 0 4px 20px rgba(0, 242, 254, 0.35);
-        }
+  /* form */
+  form.entry{
+    background:var(--paper-card);
+    border:1px solid var(--line);
+    border-radius:var(--radius);
+    padding:18px;
+    box-shadow:var(--shadow);
+  }
+  .entry-row{display:flex;gap:10px;flex-wrap:wrap;}
+  .field{flex:1;min-width:120px;display:flex;flex-direction:column;gap:5px;}
+  .field label{font-size:12px;color:var(--ink-soft);}
+  .field input, .field select{
+    font-family:'Tajawal',sans-serif;
+    font-size:15px;
+    padding:10px 10px;
+    border:1px solid var(--line);
+    border-radius:3px;
+    background:#fff;
+    color:var(--ink);
+    width:100%;
+  }
+  .field input:focus, .field select:focus{outline:2px solid var(--amber);outline-offset:0;border-color:var(--amber);}
+  .cat-quick{display:flex;flex-wrap:wrap;gap:7px;margin-top:10px;}
+  .cat-btn{
+    border:1px solid var(--line);background:#fff;
+    border-radius:20px;padding:6px 13px;font-size:13px;cursor:pointer;
+    font-family:'Tajawal',sans-serif;color:var(--ink-soft);
+    display:flex;align-items:center;gap:6px;
+    transition:.12s;
+  }
+  .cat-btn:hover{border-color:var(--amber);color:var(--ink);}
+  .cat-btn.active{background:var(--ink);border-color:var(--ink);color:var(--paper-card);}
+  .entry-actions{display:flex;justify-content:flex-end;margin-top:14px;}
+  .btn-primary{
+    background:var(--amber);color:#fff;border:none;
+    font-family:'Almarai',sans-serif;font-weight:700;
+    padding:11px 26px;border-radius:3px;font-size:14.5px;cursor:pointer;
+    transition:.15s;
+  }
+  .btn-primary:hover{background:var(--amber-deep);}
+  .hint{font-size:12px;color:var(--ink-soft);margin-top:10px;}
 
-        .glow-button:hover {
-            box-shadow: 0 6px 25px rgba(0, 242, 254, 0.5);
-            transform: translateY(-1px);
-        }
+  /* breakdown */
+  .breakdown{display:flex;gap:22px;flex-wrap:wrap;align-items:flex-start;}
+  .bars{flex:1;min-width:240px;display:flex;flex-direction:column;gap:10px;}
+  .bar-row{display:grid;grid-template-columns:90px 1fr 70px;align-items:center;gap:10px;font-size:13.5px;}
+  .bar-track{background:var(--line);border-radius:3px;height:9px;overflow:hidden;}
+  .bar-fill{height:100%;border-radius:3px;background:var(--amber);}
+  .bar-amt{text-align:left;font-family:'Almarai',sans-serif;font-size:13px;color:var(--ink-soft);}
 
-        .pulse-online {
-            box-shadow: 0 0 12px #10b981;
-            animation: pulse 2s infinite;
-        }
+  /* list */
+  .tx-list{display:flex;flex-direction:column;border-top:1px solid var(--line);}
+  .tx{
+    display:flex;justify-content:space-between;align-items:center;
+    padding:12px 4px;border-bottom:1px solid var(--line);
+    font-size:14.5px;gap:10px;
+  }
+  .tx-left{display:flex;align-items:center;gap:12px;min-width:0;}
+  .tx-cat-dot{width:9px;height:9px;border-radius:50%;flex-shrink:0;}
+  .tx-info{min-width:0;}
+  .tx-cat{font-family:'Almarai',sans-serif;font-size:13.5px;}
+  .tx-note{color:var(--ink-soft);font-size:12.5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:280px;}
+  .tx-right{display:flex;align-items:center;gap:12px;flex-shrink:0;}
+  .tx-date{color:var(--ink-soft);font-size:12px;min-width:44px;text-align:left;}
+  .tx-amt{font-family:'Almarai',sans-serif;font-weight:700;min-width:70px;text-align:left;}
+  .tx-del{background:none;border:none;color:var(--ink-soft);cursor:pointer;font-size:16px;line-height:1;padding:4px;}
+  .tx-del:hover{color:var(--rose);}
+  .empty{padding:30px 4px;text-align:center;color:var(--ink-soft);font-size:14px;}
 
-        @keyframes pulse {
-            0% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.7); }
-            70% { transform: scale(1); box-shadow: 0 0 0 8px rgba(16, 185, 129, 0); }
-            100% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(16, 185, 129, 0); }
-        }
-    </style>
+  footer.actions{
+    display:flex;gap:12px;flex-wrap:wrap;justify-content:center;
+    border-top:2px solid var(--ink);padding-top:24px;margin-top:8px;
+  }
+  .btn-ghost{
+    background:none;border:1.5px solid var(--ink);color:var(--ink);
+    font-family:'Almarai',sans-serif;font-weight:700;
+    padding:10px 22px;border-radius:3px;font-size:14px;cursor:pointer;
+  }
+  .btn-ghost:hover{background:var(--ink);color:var(--paper-card);}
+  .foot-note{text-align:center;color:var(--ink-soft);font-size:12px;margin-top:16px;}
+
+  /* modals */
+  .modal-overlay{
+    position:fixed;inset:0;background:rgba(27,43,52,.5);
+    display:none;align-items:center;justify-content:center;z-index:50;padding:16px;
+  }
+  .modal-overlay.open{display:flex;}
+  .modal{
+    background:var(--paper-card);border-radius:6px;max-width:480px;width:100%;
+    max-height:86vh;overflow:auto;padding:24px;box-shadow:0 8px 30px rgba(0,0,0,.2);
+  }
+  .modal h3{font-family:'Almarai',sans-serif;font-size:18px;margin:0 0 6px;}
+  .modal p.desc{font-size:13px;color:var(--ink-soft);margin:0 0 18px;line-height:1.7;}
+  .modal .field{margin-bottom:12px;}
+  .modal-close-row{display:flex;justify-content:space-between;align-items:center;margin-top:18px;gap:10px;}
+  .link-btn{background:none;border:none;color:var(--ink-soft);font-size:12.5px;cursor:pointer;text-decoration:underline;padding:0;}
+  .due-manage-row{
+    display:flex;align-items:center;gap:8px;border-bottom:1px solid var(--line);padding:10px 0;
+  }
+  .due-manage-row span.lbl{flex:1;font-size:14px;}
+  .due-manage-row span.amt{font-family:'Almarai',sans-serif;font-size:13.5px;color:var(--ink-soft);min-width:70px;text-align:left;}
+  .due-manage-row button{background:none;border:none;color:var(--rose);cursor:pointer;font-size:15px;}
+  .status-line{font-size:12.5px;margin-top:10px;color:var(--ink-soft);}
+  .status-line.ok{color:var(--sage);}
+  .status-line.bad{color:var(--rose);}
+
+  @media (max-width:520px){
+    .hero-figure .amount{font-size:42px;}
+    .bar-row{grid-template-columns:70px 1fr 56px;font-size:12.5px;}
+    .tx-note{max-width:140px;}
+  }
+</style>
 </head>
-<body class="p-3 md:p-6 pb-24">
+<body>
+<div class="wrap">
 
-    <!-- Passcode Lock Screen -->
-    <div id="lockScreen" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/95 backdrop-blur-2xl">
-        <div class="glass-panel p-8 rounded-3xl w-full max-w-md text-center border border-white/10 shadow-2xl">
-            <div class="w-20 h-20 bg-gradient-to-tr from-cyan-500 via-indigo-600 to-purple-600 rounded-3xl mx-auto flex items-center justify-center mb-6 shadow-xl shadow-cyan-500/20">
-                <i class="fa-solid fa-shield-halved text-3xl text-white"></i>
-            </div>
-            <h2 class="text-2xl font-black mb-2 bg-gradient-to-r from-cyan-400 to-purple-400 bg-clip-text text-transparent">محفظتي الشخصية</h2>
-            <p class="text-slate-400 text-sm mb-6">أدخل الرقم السري للوصول</p>
-
-            <div class="mb-6">
-                <input type="password" id="pinInput" maxlength="6" pattern="\d*" inputmode="numeric" 
-                       class="w-full text-center text-3xl tracking-widest py-3.5 rounded-2xl glass-input font-bold" 
-                       placeholder="••••" onkeyup="checkPinAuto(event)">
-            </div>
-
-            <button onclick="verifyPin()" class="w-full py-4 glow-button rounded-2xl font-bold text-lg text-white transition-all">
-                فتح المحفظة <i class="fa-solid fa-arrow-left mr-2"></i>
-            </button>
-            <p id="pinError" class="text-rose-400 text-sm mt-3 hidden">الرقم السري غير صحيح، حاول مرة أخرى</p>
+  <header class="hero">
+    <div class="hero-top">
+      <div>
+        <div class="brand-row">
+          <div class="brand">دفتر<span>ي</span></div>
+          <div class="sync-badge" id="syncBadge"><span class="dot"></span><span id="syncBadgeText">محفوظ محليًا</span></div>
         </div>
+        <div class="subtitle">متابعة مصاريفك اليومية، بدون تعقيد</div>
+      </div>
+      <div class="month-switch">
+        <button id="prevMonth" aria-label="الشهر السابق">‹</button>
+        <div class="month-label" id="monthLabel">—</div>
+        <button id="nextMonth" aria-label="الشهر التالي">›</button>
+      </div>
     </div>
+    <div class="hero-figure">
+      <div class="amount"><span id="totalAmt">0</span><small> ج.م</small></div>
+      <div class="amount-label">إجمالي المصروف هذا الشهر</div>
+    </div>
+    <div class="hero-sub-stats">
+      <div>عدد الحركات: <b id="txCount">0</b></div>
+      <div>متوسط اليوم: <b id="dailyAvg">0</b> ج.م</div>
+      <div>أعلى بند: <b id="topCat">—</b></div>
+    </div>
+  </header>
 
-    <!-- Main Content Container -->
-    <div id="appContainer" class="max-w-4xl mx-auto hidden space-y-6">
+  <section>
+    <h2>المصاريف الثابتة لهذا الشهر <span class="h2-action" id="manageDuesBtn">تعديل القايمة</span></h2>
+    <div class="dues" id="duesWrap"></div>
+  </section>
 
-        <!-- Top Header -->
-        <header class="glass-panel p-4 rounded-3xl flex flex-wrap justify-between items-center gap-4">
-            <div class="flex items-center gap-3">
-                <div class="w-12 h-12 bg-gradient-to-tr from-purple-600 to-indigo-600 rounded-2xl flex items-center justify-center shadow-lg shadow-purple-500/30">
-                    <i class="fa-solid fa-wallet text-xl text-white"></i>
-                </div>
-                <div>
-                    <h1 class="text-xl font-black bg-gradient-to-r from-cyan-400 via-teal-300 to-purple-400 bg-clip-text text-transparent">محفظتي الشخصية</h1>
-                    <div id="syncBadge" class="inline-flex items-center gap-2 px-3 py-0.5 rounded-full bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 text-xs mt-1">
-                        <span class="w-2 h-2 rounded-full bg-emerald-400 pulse-online"></span>
-                        <span id="syncText">⚡ متصل ومقترن سحابياً</span>
-                    </div>
-                </div>
-            </div>
-
-            <div class="flex items-center gap-2">
-                <button onclick="openSyncSettings()" title="رمز الاقتران" class="px-3 py-2 glass-panel rounded-2xl hover:bg-white/10 text-cyan-400 text-xs font-bold flex items-center gap-1.5 transition">
-                    <i class="fa-solid fa-key"></i> <span id="syncCodeLabel">ahmed_2607</span>
-                </button>
-                <button onclick="manualSync()" title="إعادة مزامنة الآن" class="p-3 glass-panel rounded-2xl hover:bg-white/10 text-cyan-400 transition">
-                    <i class="fa-solid fa-rotate-right" id="syncSpinner"></i>
-                </button>
-                <button onclick="exportToExcel()" title="تصدير إكسيل" class="p-3 glass-panel rounded-2xl hover:bg-white/10 text-emerald-400 transition">
-                    <i class="fa-solid fa-file-excel"></i>
-                </button>
-                <button onclick="lockApp()" title="قفل التطبيق" class="p-3 glass-panel rounded-2xl hover:bg-white/10 text-rose-400 transition">
-                    <i class="fa-solid fa-lock"></i>
-                </button>
-            </div>
-        </header>
-
-        <!-- Savings Vault Card -->
-        <section class="glass-panel p-6 rounded-3xl relative overflow-hidden border border-amber-500/20">
-            <div class="absolute -right-10 -bottom-10 w-44 h-44 bg-amber-500/10 rounded-full blur-3xl pointer-events-none"></div>
-            <div class="flex justify-between items-start mb-4">
-                <div>
-                    <span class="text-xs font-bold text-amber-400 uppercase tracking-wider block mb-1">خزينة التحويش (Savings Vault)</span>
-                    <h2 class="text-3xl font-black text-white" id="totalSavingsDisplay">0 ج.م</h2>
-                </div>
-                <button onclick="openTargetModal()" class="px-3 py-1.5 bg-amber-500/20 text-amber-300 border border-amber-500/30 rounded-xl text-xs font-bold hover:bg-amber-500/30 transition">
-                    <i class="fa-solid fa-bullseye ml-1"></i> تعديل الهدف
-                </button>
-            </div>
-
-            <div class="space-y-2">
-                <div class="flex justify-between text-xs text-slate-300">
-                    <span>نسبة الإنجاز للهدف (<span id="targetAmountDisplay">0</span> ج.م)</span>
-                    <span id="savingsProgressPercent" class="font-bold text-amber-400">0%</span>
-                </div>
-                <div class="w-full h-3.5 bg-slate-900/80 rounded-full overflow-hidden p-0.5 border border-white/5">
-                    <div id="savingsProgressBar" class="h-full bg-gradient-to-r from-amber-500 via-emerald-400 to-cyan-400 rounded-full transition-all duration-500" style="width: 0%"></div>
-                </div>
-            </div>
-        </section>
-
-        <!-- Monthly Commitments Checklist -->
-        <section class="glass-panel p-6 rounded-3xl">
-            <h3 class="text-lg font-bold mb-4 text-purple-300 flex items-center gap-2">
-                <i class="fa-solid fa-calendar-check text-purple-400"></i> الالتزامات والأقساط الشهرية
-            </h3>
-            <div class="grid grid-cols-1 md:grid-cols-3 gap-3">
-                <!-- Gamya 1 -->
-                <label class="glass-panel p-4 rounded-2xl flex items-center justify-between cursor-pointer hover:bg-white/5 transition">
-                    <div class="flex items-center gap-3">
-                        <input type="checkbox" id="chkGamya1" onchange="toggleCommitment('gamya1')" class="w-5 h-5 rounded text-purple-600 focus:ring-purple-500 bg-slate-800 border-white/20">
-                        <span class="font-bold text-sm">جمعية 1</span>
-                    </div>
-                    <span class="text-xs px-2.5 py-1 rounded-lg" id="badgeGamya1">لم تدفع</span>
-                </label>
-
-                <!-- Gamya 2 -->
-                <label class="glass-panel p-4 rounded-2xl flex items-center justify-between cursor-pointer hover:bg-white/5 transition">
-                    <div class="flex items-center gap-3">
-                        <input type="checkbox" id="chkGamya2" onchange="toggleCommitment('gamya2')" class="w-5 h-5 rounded text-indigo-600 focus:ring-indigo-500 bg-slate-800 border-white/20">
-                        <span class="font-bold text-sm">جمعية 2</span>
-                    </div>
-                    <span class="text-xs px-2.5 py-1 rounded-lg" id="badgeGamya2">لم تدفع</span>
-                </label>
-
-                <!-- AC Installment -->
-                <label class="glass-panel p-4 rounded-2xl flex items-center justify-between cursor-pointer hover:bg-white/5 transition">
-                    <div class="flex items-center gap-3">
-                        <input type="checkbox" id="chkAC" onchange="toggleCommitment('ac')" class="w-5 h-5 rounded text-cyan-600 focus:ring-cyan-500 bg-slate-800 border-white/20">
-                        <span class="font-bold text-sm">قسط التكييف ❄️</span>
-                    </div>
-                    <span class="text-xs px-2.5 py-1 rounded-lg" id="badgeAC">لم يدفع</span>
-                </label>
-            </div>
-        </section>
-
-        <!-- New Transaction Form -->
-        <section class="glass-panel p-6 rounded-3xl">
-            <h3 class="text-lg font-bold mb-4 text-cyan-300 flex items-center gap-2">
-                <i class="fa-solid fa-plus-circle"></i> تسجيل مصروف أو إضافة للتحويشة
-            </h3>
-            <form onsubmit="addTransaction(event)" class="space-y-4">
-                <div class="grid grid-cols-1 md:grid-cols-3 gap-3">
-                    <div>
-                        <label class="block text-xs text-slate-400 mb-1">المبلغ (ج.م)</label>
-                        <input type="number" step="any" id="txAmount" required class="w-full p-3.5 rounded-xl glass-input font-bold" placeholder="0.00">
-                    </div>
-                    <div>
-                        <label class="block text-xs text-slate-400 mb-1">القسم</label>
-                        <select id="txCategory" required class="w-full p-3.5 rounded-xl glass-input font-bold">
-                            <option value="مواصلات">🚌 مواصلات</option>
-                            <option value="جمعية 1">🤝 جمعية 1</option>
-                            <option value="جمعية 2">🤝 جمعية 2</option>
-                            <option value="قسط التكييف">❄️ قسط التكييف</option>
-                            <option value="القهوة وتدليل النفس">☕ القهوة وتدليل النفس</option>
-                            <option value="التحويشة">💰 إيداع للتحويشة</option>
-                        </select>
-                    </div>
-                    <div>
-                        <label class="block text-xs text-slate-400 mb-1">ملاحظة / البيان</label>
-                        <input type="text" id="txNote" class="w-full p-3.5 rounded-xl glass-input" placeholder="مثال: قهوة، مواصلات الشغل...">
-                    </div>
-                </div>
-                <button type="submit" class="w-full py-4 bg-gradient-to-r from-emerald-500 via-teal-500 to-cyan-500 hover:from-emerald-400 hover:to-cyan-400 rounded-xl font-bold text-white shadow-lg shadow-emerald-500/25 transition">
-                    <i class="fa-solid fa-check ml-2"></i> حفظ وصرف الحركة
-                </button>
-            </form>
-        </section>
-
-        <!-- Analytics & Category Cards -->
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <!-- Chart Card -->
-            <div class="glass-panel p-6 rounded-3xl flex flex-col justify-between">
-                <h3 class="text-lg font-bold mb-2 text-slate-200">توزيع المصاريف والتحويش</h3>
-                <div class="relative w-full h-64 flex items-center justify-center">
-                    <canvas id="expensesChart"></canvas>
-                </div>
-            </div>
-
-            <!-- Categories Breakdown -->
-            <div class="glass-panel p-6 rounded-3xl space-y-3">
-                <h3 class="text-lg font-bold mb-2 text-slate-200">إجمالي المصاريف حسب البند</h3>
-                <div id="categoryTotalsList" class="space-y-2 max-h-64 overflow-y-auto pr-1">
-                    <!-- Dynamic categories -->
-                </div>
-            </div>
+  <section>
+    <h2>تسجيل مصروف</h2>
+    <form class="entry" id="entryForm">
+      <div class="entry-row">
+        <div class="field">
+          <label for="amt">المبلغ (ج.م)</label>
+          <input type="number" id="amt" inputmode="decimal" step="0.01" min="0" placeholder="0" required>
         </div>
-
-        <!-- Recent Transactions Log -->
-        <section class="glass-panel p-6 rounded-3xl">
-            <div class="flex justify-between items-center mb-4">
-                <h3 class="text-lg font-bold text-slate-200">سجل المعاملات الأخيرة</h3>
-                <span id="txCount" class="text-xs bg-slate-800 px-3 py-1 rounded-full text-slate-400">0 معاملة</span>
-            </div>
-            <div class="overflow-x-auto">
-                <table class="w-full text-right text-sm">
-                    <thead>
-                        <tr class="text-slate-400 border-b border-white/10 text-xs">
-                            <th class="pb-3">التاريخ</th>
-                            <th class="pb-3">القسم</th>
-                            <th class="pb-3">البيان</th>
-                            <th class="pb-3">المبلغ</th>
-                            <th class="pb-3 text-center">حذف</th>
-                        </tr>
-                    </thead>
-                    <tbody id="txTableBody" class="divide-y divide-white/5">
-                        <!-- Dynamic rows -->
-                    </tbody>
-                </table>
-            </div>
-        </section>
-    </div>
-
-    <!-- Target Edit Modal -->
-    <div id="targetModal" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-md hidden">
-        <div class="glass-panel p-6 rounded-3xl w-full max-w-sm space-y-4">
-            <h3 class="text-lg font-bold text-amber-300">تعديل هدف التحويشة</h3>
-            <div>
-                <label class="block text-xs text-slate-400 mb-1">المبلغ المستهدف (ج.م)</label>
-                <input type="number" id="targetInput" class="w-full p-3 rounded-xl glass-input font-bold">
-            </div>
-            <div class="flex gap-2">
-                <button onclick="saveTargetGoal()" class="flex-1 py-3 bg-amber-500 text-slate-950 font-bold rounded-xl">حفظ</button>
-                <button onclick="closeTargetModal()" class="px-4 py-3 bg-slate-800 text-slate-300 font-bold rounded-xl">إلغاء</button>
-            </div>
+        <div class="field">
+          <label for="date">التاريخ</label>
+          <input type="date" id="date" required>
         </div>
-    </div>
-
-    <!-- Sync Pairing Modal -->
-    <div id="syncModal" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-md hidden">
-        <div class="glass-panel p-6 rounded-3xl w-full max-w-sm space-y-4">
-            <h3 class="text-lg font-bold text-cyan-300">رمز الاقتران السحابي</h3>
-            <p class="text-xs text-slate-300 leading-relaxed">تأكد أن هذا الرمز متطابق تماماً في اللابتوب والموبايل لضمان المزامنة الفورية بين الجهازين:</p>
-            <div>
-                <input type="text" id="syncCodeInput" class="w-full p-3 rounded-xl glass-input font-bold text-center tracking-wider text-cyan-400">
-            </div>
-            <div class="flex gap-2">
-                <button onclick="saveSyncCode()" class="flex-1 py-3 glow-button font-bold text-white rounded-xl">تأكيد واقتران</button>
-                <button onclick="closeSyncModal()" class="px-4 py-3 bg-slate-800 text-slate-300 font-bold rounded-xl">إلغاء</button>
-            </div>
+        <div class="field" style="flex:2;">
+          <label for="note">ملاحظة (اختياري)</label>
+          <input type="text" id="note" placeholder="مثلاً: بنزين، غدا مع صحابي...">
         </div>
+      </div>
+      <div class="cat-quick" id="catQuick"></div>
+      <div class="entry-actions">
+        <button type="submit" class="btn-primary">إضافة</button>
+      </div>
+      <div class="hint">اضغط على البند المناسب، اكتب المبلغ، وسجّل. مفيش تفاصيل زيادة.</div>
+    </form>
+  </section>
+
+  <section>
+    <h2>توزيع المصاريف حسب البند</h2>
+    <div class="breakdown">
+      <div class="bars" id="barsWrap"></div>
     </div>
+  </section>
 
-    <script>
-        const CORRECT_PIN = "2607";
-        let syncRoomKey = localStorage.getItem('wallet_sync_room_id') || 'ahmed_2607';
+  <section>
+    <h2>حركات الشهر</h2>
+    <div class="tx-list" id="txList"></div>
+  </section>
 
-        let appData = {
-            savingsGoal: 50000,
-            commitments: { gamya1: false, gamya2: false, ac: false },
-            transactions: [],
-            updatedAt: Date.now()
-        };
+  <footer class="actions">
+    <button class="btn-ghost" id="exportBtn">تصدير إكسل للشهر ده</button>
+    <button class="btn-ghost" id="exportAllBtn">تصدير كل البيانات</button>
+  </footer>
+  <div class="foot-note">
+    البيانات محفوظة في متصفحك (localStorage)، ولو فعّلت المزامنة هتتخزن كمان أونلاين عشان توصلها من أي جهاز.
+    <button class="link-btn" id="openSyncFromFoot" style="margin-inline-start:6px;">إعداد المزامنة بين الأجهزة</button>
+  </div>
+</div>
 
-        let chartInstance = null;
+<!-- manage dues modal -->
+<div class="modal-overlay" id="duesModalOverlay">
+  <div class="modal">
+    <h3>المصاريف الثابتة</h3>
+    <p class="desc">دي بنود بتتكرر كل شهر (زي جمعية أو قسط). احذف أي بند خلص، أو ضيف بند جديد.</p>
+    <div id="duesManageList"></div>
+    <div class="entry-row" style="margin-top:16px;">
+      <div class="field" style="flex:2;">
+        <label for="newDueLabel">اسم البند</label>
+        <input type="text" id="newDueLabel" placeholder="مثلاً: جمعية جديدة">
+      </div>
+      <div class="field">
+        <label for="newDueAmount">المبلغ</label>
+        <input type="number" id="newDueAmount" min="0" step="0.01" placeholder="0">
+      </div>
+    </div>
+    <div class="field">
+      <label for="newDueCategory">البند المحاسبي</label>
+      <select id="newDueCategory"></select>
+    </div>
+    <div class="modal-close-row">
+      <button type="button" class="btn-ghost" id="addDueBtn">إضافة بند ثابت</button>
+      <button type="button" class="btn-primary" id="closeDuesModal">تم</button>
+    </div>
+  </div>
+</div>
 
-        // AUTH SYSTEM
-        function checkPinAuto(e) {
-            if (e.target.value.length === 4) verifyPin();
+<!-- sync modal -->
+<div class="modal-overlay" id="syncModalOverlay">
+  <div class="modal">
+    <h3>المزامنة بين الأجهزة</h3>
+    <p class="desc">
+      الموقع ده صفحة ثابتة على جت هب، فمن غير خطوة إضافية البيانات بتتخزن في المتصفح بس.
+      عشان توصلها من أي جهاز، وصّل الموقع بمشروع Firebase مجاني بتعمله انت (بياناتك ملكك وحدك، مش عندنا).
+      خطوات بسيطة: افتح <b>console.firebase.google.com</b> ← أنشئ مشروع ← فعّل <b>Firestore Database</b> (وضع Test mode) ←
+      من إعدادات المشروع انسخ كائن الإعداد (Firebase config) والصقه هنا.
+    </p>
+    <div class="field">
+      <label for="fbConfig">Firebase config (الصق الكائن كامل زي ما هو)</label>
+      <input type="text" id="fbConfig" placeholder='{"apiKey":"...", "projectId":"...", ...}'>
+    </div>
+    <div class="field">
+      <label for="syncCode">كود المزامنة (اختار كلمة واحفظها، واستخدمها في كل أجهزتك)</label>
+      <input type="text" id="syncCode" placeholder="مثلاً: ahmed-monouf-2026">
+    </div>
+    <div class="status-line" id="syncStatusLine"></div>
+    <div class="modal-close-row">
+      <button type="button" class="btn-ghost" id="disconnectSyncBtn">إلغاء المزامنة</button>
+      <div style="display:flex;gap:8px;">
+        <button type="button" class="btn-ghost" id="closeSyncModal">إغلاق</button>
+        <button type="button" class="btn-primary" id="connectSyncBtn">حفظ واتصال</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+(function(){
+  "use strict";
+
+  // ---------- categories ----------
+  var CATEGORIES = [
+    {id:"مواصلات", color:"#3E7CB1"},
+    {id:"أكل وشرب", color:"#B5544A"},
+    {id:"قهوة", color:"#6F4E37"},
+    {id:"جمعية", color:"#6F8768"},
+    {id:"قسط", color:"#8A6BB1"},
+    {id:"دراسة/ماجستير", color:"#B5701A"},
+    {id:"شخصي", color:"#4A8B8B"},
+    {id:"غير ذلك", color:"#7A7A7A"}
+  ];
+  var CAT_COLOR = {};
+  CATEGORIES.forEach(function(c){CAT_COLOR[c.id]=c.color;});
+
+  var DEFAULT_DUES = [
+    {id:"jamia1", label:"جمعية (٣٠٠٠)", category:"جمعية", amount:3000},
+    {id:"jamia2", label:"جمعية (٢٠٠٠)", category:"جمعية", amount:2000},
+    {id:"ac", label:"قسط التكييف", category:"قسط", amount:2500}
+  ];
+
+  var LS_TX = "daftary_transactions_v1";
+  var LS_DUES = "daftary_dues_v1";
+  var LS_VIEW = "daftary_view_v1";
+  var LS_SYNC = "daftary_sync_cfg_v1";
+
+  var selectedCat = CATEGORIES[0].id;
+
+  // ---------- local storage helpers ----------
+  function lsGet(key, fallback){
+    try{
+      var raw = localStorage.getItem(key);
+      return raw ? JSON.parse(raw) : fallback;
+    }catch(e){ return fallback; }
+  }
+  function lsSet(key, val){
+    try{ localStorage.setItem(key, JSON.stringify(val)); }
+    catch(e){ /* ignore */ }
+  }
+
+  var transactions = lsGet(LS_TX, []);
+  var dues = lsGet(LS_DUES, DEFAULT_DUES);
+
+  function uid(){ return Date.now().toString(36)+Math.random().toString(36).slice(2,7); }
+
+  // ---------- month state (persisted so a refresh doesn't jump back to today) ----------
+  var today = new Date();
+  var savedView = lsGet(LS_VIEW, null);
+  var viewYear = savedView ? savedView.y : today.getFullYear();
+  var viewMonth = savedView ? savedView.m : today.getMonth();
+
+  function saveView(){ lsSet(LS_VIEW, {y:viewYear, m:viewMonth}); }
+
+  var MONTH_NAMES = ["يناير","فبراير","مارس","أبريل","مايو","يونيو","يوليو","أغسطس","سبتمبر","أكتوبر","نوفمبر","ديسمبر"];
+
+  function fmt(n){
+    n = Math.round(n*100)/100;
+    return n.toLocaleString('ar-EG', {maximumFractionDigits:2});
+  }
+  function pad(n){ return n<10 ? "0"+n : ""+n; }
+  function todayISO(){ return today.getFullYear()+"-"+pad(today.getMonth()+1)+"-"+pad(today.getDate()); }
+
+  function monthKey(y,m){ return y+"-"+pad(m+1); }
+  function txMonthKey(t){
+    var d = new Date(t.date+"T00:00:00");
+    return monthKey(d.getFullYear(), d.getMonth());
+  }
+  function daysInMonth(y,m){ return new Date(y, m+1, 0).getDate(); }
+
+  // ---------- rendering ----------
+  var $ = function(id){ return document.getElementById(id); };
+
+  function renderCatQuick(){
+    var wrap = $("catQuick");
+    wrap.innerHTML = "";
+    CATEGORIES.forEach(function(c){
+      var b = document.createElement("button");
+      b.type="button";
+      b.className = "cat-btn" + (c.id===selectedCat ? " active":"");
+      b.innerHTML = '<span style="width:8px;height:8px;border-radius:50%;background:'+c.color+';display:inline-block;"></span>'+c.id;
+      b.addEventListener("click", function(){
+        selectedCat = c.id;
+        renderCatQuick();
+      });
+      wrap.appendChild(b);
+    });
+  }
+
+  function fillCategorySelect(sel){
+    sel.innerHTML = "";
+    CATEGORIES.forEach(function(c){
+      var o = document.createElement("option");
+      o.value = c.id; o.textContent = c.id;
+      sel.appendChild(o);
+    });
+  }
+
+  function currentMonthTx(){
+    var key = monthKey(viewYear, viewMonth);
+    return transactions.filter(function(t){ return txMonthKey(t)===key; })
+      .sort(function(a,b){ return b.date.localeCompare(a.date) || b.createdAt-a.createdAt; });
+  }
+
+  function renderDues(){
+    var wrap = $("duesWrap");
+    wrap.innerHTML = "";
+    if(!dues.length){
+      wrap.innerHTML = '<div class="empty-small">مفيش بنود ثابتة حاليًا. اضغط "تعديل القايمة" لإضافة واحد.</div>';
+      return;
+    }
+    var monthTx = currentMonthTx();
+    dues.forEach(function(due){
+      var isDone = monthTx.some(function(t){ return t.dueId===due.id; });
+      var chip = document.createElement("div");
+      chip.className = "due-chip" + (isDone ? " done":"");
+      chip.innerHTML =
+        '<span class="dot"></span>' +
+        '<b>'+escapeHtml(due.label)+'</b>' +
+        '<small>'+fmt(due.amount)+' ج.م</small>';
+      var btn = document.createElement("button");
+      if(isDone){
+        btn.textContent = "متسجل ✓";
+      } else {
+        btn.textContent = "تسجيل";
+        btn.addEventListener("click", function(){
+          transactions.push({
+            id: uid(),
+            amount: due.amount,
+            category: due.category,
+            note: due.label,
+            date: todayISO(),
+            createdAt: Date.now(),
+            dueId: due.id
+          });
+          persistTx();
+          renderAll();
+        });
+      }
+      chip.appendChild(btn);
+      wrap.appendChild(chip);
+    });
+  }
+
+  function renderDuesManage(){
+    var wrap = $("duesManageList");
+    wrap.innerHTML = "";
+    if(!dues.length){
+      wrap.innerHTML = '<div class="empty-small">مفيش بنود ثابتة حاليًا.</div>';
+      return;
+    }
+    dues.forEach(function(due){
+      var row = document.createElement("div");
+      row.className = "due-manage-row";
+      row.innerHTML =
+        '<span class="lbl">'+escapeHtml(due.label)+' <span style="color:var(--ink-soft);font-size:12px;">('+due.category+')</span></span>'+
+        '<span class="amt">'+fmt(due.amount)+' ج.م</span>'+
+        '<button data-id="'+due.id+'" title="حذف">✕</button>';
+      wrap.appendChild(row);
+    });
+    wrap.querySelectorAll("button").forEach(function(btn){
+      btn.addEventListener("click", function(){
+        var id = btn.getAttribute("data-id");
+        dues = dues.filter(function(d){ return d.id!==id; });
+        persistDues();
+        renderDuesManage();
+        renderDues();
+      });
+    });
+  }
+
+  function renderHero(){
+    var monthTx = currentMonthTx();
+    var total = monthTx.reduce(function(s,t){ return s+t.amount; },0);
+    $("monthLabel").textContent = MONTH_NAMES[viewMonth] + " " + viewYear;
+    $("totalAmt").textContent = fmt(total);
+    $("txCount").textContent = monthTx.length;
+
+    var dim = daysInMonth(viewYear, viewMonth);
+    var isCurrentMonth = (viewYear===today.getFullYear() && viewMonth===today.getMonth());
+    var divisor = isCurrentMonth ? today.getDate() : dim;
+    $("dailyAvg").textContent = fmt(divisor ? total/divisor : 0);
+
+    var byCat = {};
+    monthTx.forEach(function(t){ byCat[t.category]=(byCat[t.category]||0)+t.amount; });
+    var topCat = "—", topVal=-1;
+    Object.keys(byCat).forEach(function(c){ if(byCat[c]>topVal){topVal=byCat[c];topCat=c;} });
+    $("topCat").textContent = topCat;
+  }
+
+  function renderBars(){
+    var wrap = $("barsWrap");
+    var monthTx = currentMonthTx();
+    var total = monthTx.reduce(function(s,t){ return s+t.amount; },0);
+    var byCat = {};
+    monthTx.forEach(function(t){ byCat[t.category]=(byCat[t.category]||0)+t.amount; });
+    var cats = CATEGORIES.map(function(c){return c.id;}).filter(function(c){ return byCat[c]; })
+      .sort(function(a,b){ return byCat[b]-byCat[a]; });
+
+    wrap.innerHTML = "";
+    if(!cats.length){
+      wrap.innerHTML = '<div class="empty">لسه مفيش مصاريف مسجلة الشهر ده</div>';
+      return;
+    }
+    cats.forEach(function(c){
+      var val = byCat[c];
+      var pct = total ? (val/total*100) : 0;
+      var row = document.createElement("div");
+      row.className = "bar-row";
+      row.innerHTML =
+        '<span>'+c+'</span>' +
+        '<span class="bar-track"><span class="bar-fill" style="width:'+pct.toFixed(1)+'%;background:'+CAT_COLOR[c]+';"></span></span>' +
+        '<span class="bar-amt">'+fmt(val)+'</span>';
+      wrap.appendChild(row);
+    });
+  }
+
+  function renderList(){
+    var wrap = $("txList");
+    var monthTx = currentMonthTx();
+    wrap.innerHTML = "";
+    if(!monthTx.length){
+      wrap.innerHTML = '<div class="empty">مفيش حركات مسجلة في '+MONTH_NAMES[viewMonth]+' — سجّل أول مصروف من فوق</div>';
+      return;
+    }
+    monthTx.forEach(function(t){
+      var row = document.createElement("div");
+      row.className = "tx";
+      var d = new Date(t.date+"T00:00:00");
+      var dateStr = pad(d.getDate())+"/"+pad(d.getMonth()+1);
+      row.innerHTML =
+        '<div class="tx-left">'+
+          '<span class="tx-cat-dot" style="background:'+(CAT_COLOR[t.category]||'#999')+';"></span>'+
+          '<div class="tx-info">'+
+            '<div class="tx-cat">'+t.category+'</div>'+
+            (t.note ? '<div class="tx-note">'+escapeHtml(t.note)+'</div>' : '')+
+          '</div>'+
+        '</div>'+
+        '<div class="tx-right">'+
+          '<span class="tx-date">'+dateStr+'</span>'+
+          '<span class="tx-amt">'+fmt(t.amount)+'</span>'+
+          '<button class="tx-del" title="حذف" data-id="'+t.id+'">✕</button>'+
+        '</div>';
+      wrap.appendChild(row);
+    });
+    wrap.querySelectorAll(".tx-del").forEach(function(btn){
+      btn.addEventListener("click", function(){
+        var id = btn.getAttribute("data-id");
+        transactions = transactions.filter(function(t){ return t.id!==id; });
+        persistTx();
+        renderAll();
+      });
+    });
+  }
+
+  function escapeHtml(s){
+    var d = document.createElement("div");
+    d.textContent = s;
+    return d.innerHTML;
+  }
+
+  function renderAll(){
+    renderDues();
+    renderHero();
+    renderBars();
+    renderList();
+  }
+
+  // ---------- form ----------
+  $("date").value = todayISO();
+  renderCatQuick();
+  fillCategorySelect($("newDueCategory"));
+
+  $("entryForm").addEventListener("submit", function(e){
+    e.preventDefault();
+    var amt = parseFloat($("amt").value);
+    if(!amt || amt<=0){ $("amt").focus(); return; }
+    var date = $("date").value || todayISO();
+    var note = $("note").value.trim();
+    transactions.push({
+      id: uid(),
+      amount: amt,
+      category: selectedCat,
+      note: note,
+      date: date,
+      createdAt: Date.now()
+    });
+    persistTx();
+    $("amt").value = "";
+    $("note").value = "";
+    $("amt").focus();
+    // jump view to the month of the new entry
+    var d = new Date(date+"T00:00:00");
+    viewYear = d.getFullYear(); viewMonth = d.getMonth();
+    saveView();
+    renderAll();
+  });
+
+  // ---------- month nav ----------
+  $("prevMonth").addEventListener("click", function(){
+    viewMonth--; if(viewMonth<0){ viewMonth=11; viewYear--; }
+    saveView();
+    renderAll();
+  });
+  $("nextMonth").addEventListener("click", function(){
+    viewMonth++; if(viewMonth>11){ viewMonth=0; viewYear++; }
+    saveView();
+    renderAll();
+  });
+
+  // ---------- manage dues modal ----------
+  $("manageDuesBtn").addEventListener("click", function(){
+    renderDuesManage();
+    $("duesModalOverlay").classList.add("open");
+  });
+  $("closeDuesModal").addEventListener("click", function(){
+    $("duesModalOverlay").classList.remove("open");
+  });
+  $("duesModalOverlay").addEventListener("click", function(e){
+    if(e.target===$("duesModalOverlay")) $("duesModalOverlay").classList.remove("open");
+  });
+  $("addDueBtn").addEventListener("click", function(){
+    var label = $("newDueLabel").value.trim();
+    var amount = parseFloat($("newDueAmount").value);
+    var category = $("newDueCategory").value;
+    if(!label || !amount || amount<=0){ return; }
+    dues.push({id:uid(), label:label, category:category, amount:amount});
+    persistDues();
+    $("newDueLabel").value=""; $("newDueAmount").value="";
+    renderDuesManage();
+    renderDues();
+  });
+
+  // ================= SYNC (optional, Firebase Firestore) =================
+  var fbApp=null, fbDb=null, syncCfg=lsGet(LS_SYNC, null);
+  var applyingRemote=false, unsub=null, writeTimer=null;
+
+  function setBadge(state, text){
+    var b=$("syncBadge");
+    b.classList.remove("on","err");
+    if(state==="on") b.classList.add("on");
+    if(state==="err") b.classList.add("err");
+    $("syncBadgeText").textContent=text;
+  }
+
+  function persistTx(){
+    lsSet(LS_TX, transactions);
+    queueRemoteWrite();
+  }
+  function persistDues(){
+    lsSet(LS_DUES, dues);
+    queueRemoteWrite();
+  }
+
+  function queueRemoteWrite(){
+    if(!fbDb || applyingRemote) return;
+    clearTimeout(writeTimer);
+    writeTimer = setTimeout(function(){
+      fbDb.collection("daftary_data").doc(syncCfg.code).set({
+        transactions: transactions,
+        dues: dues,
+        updatedAt: Date.now()
+      }).then(function(){
+        setBadge("on","متزامن الآن");
+      }).catch(function(err){
+        setBadge("err","خطأ في الحفظ الأونلاين");
+      });
+    }, 500);
+  }
+
+  function loadFirebaseScripts(cb){
+    if(window.firebase){ cb(); return; }
+    var s1=document.createElement("script");
+    s1.src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js";
+    s1.onload=function(){
+      var s2=document.createElement("script");
+      s2.src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js";
+      s2.onload=cb;
+      s2.onerror=function(){ setBadge("err","تعذر تحميل مكتبة المزامنة"); };
+      document.head.appendChild(s2);
+    };
+    s1.onerror=function(){ setBadge("err","تعذر تحميل مكتبة المزامنة"); };
+    document.head.appendChild(s1);
+  }
+
+  function connectSync(cfgObj, code){
+    setBadge("on","جارِ الاتصال...");
+    loadFirebaseScripts(function(){
+      try{
+        if(!window.firebase.apps || !window.firebase.apps.length){
+          fbApp = window.firebase.initializeApp(cfgObj);
+        } else {
+          fbApp = window.firebase.app();
         }
+        fbDb = window.firebase.firestore();
+        if(unsub){ unsub(); unsub=null; }
+        unsub = fbDb.collection("daftary_data").doc(code).onSnapshot(function(doc){
+          if(doc.exists){
+            var data = doc.data();
+            applyingRemote = true;
+            transactions = data.transactions || [];
+            dues = data.dues || DEFAULT_DUES;
+            lsSet(LS_TX, transactions);
+            lsSet(LS_DUES, dues);
+            renderAll();
+            renderDuesManage();
+            applyingRemote = false;
+          } else {
+            // first time on this code: push current local data up
+            queueRemoteWrite();
+          }
+          setBadge("on","متزامن — كود: "+code);
+        }, function(err){
+          setBadge("err","تعذر الاتصال: تأكد من الإعداد");
+        });
+      }catch(err){
+        setBadge("err","إعداد Firebase غير صحيح");
+      }
+    });
+  }
 
-        function verifyPin() {
-            const pin = document.getElementById('pinInput').value;
-            if (pin === CORRECT_PIN) {
-                document.getElementById('lockScreen').classList.add('hidden');
-                document.getElementById('appContainer').classList.remove('hidden');
-                initApp();
-            } else {
-                document.getElementById('pinError').classList.remove('hidden');
-            }
-        }
+  function tryAutoConnect(){
+    if(syncCfg && syncCfg.config && syncCfg.code){
+      connectSync(syncCfg.config, syncCfg.code);
+    }
+  }
 
-        function lockApp() {
-            document.getElementById('lockScreen').classList.add('hidden');
-            document.getElementById('appContainer').classList.add('hidden');
-            document.getElementById('pinInput').value = '';
-            document.getElementById('pinError').classList.add('hidden');
-        }
+  // sync modal wiring
+  $("openSyncFromFoot").addEventListener("click", openSyncModal);
+  $("syncBadge").addEventListener("click", openSyncModal);
+  function openSyncModal(){
+    if(syncCfg){
+      $("fbConfig").value = JSON.stringify(syncCfg.config);
+      $("syncCode").value = syncCfg.code;
+    }
+    $("syncStatusLine").textContent="";
+    $("syncModalOverlay").classList.add("open");
+  }
+  $("closeSyncModal").addEventListener("click", function(){
+    $("syncModalOverlay").classList.remove("open");
+  });
+  $("syncModalOverlay").addEventListener("click", function(e){
+    if(e.target===$("syncModalOverlay")) $("syncModalOverlay").classList.remove("open");
+  });
+  $("connectSyncBtn").addEventListener("click", function(){
+    var raw = $("fbConfig").value.trim();
+    var code = $("syncCode").value.trim();
+    if(!raw || !code){
+      $("syncStatusLine").textContent = "لازم تدخل الإعداد وكود المزامنة.";
+      $("syncStatusLine").className="status-line bad";
+      return;
+    }
+    var cfgObj;
+    try{
+      // accept either strict JSON or a JS object literal copied from Firebase console
+      cfgObj = new Function("return (" + raw + ")")();
+    }catch(err){
+      $("syncStatusLine").textContent = "الإعداد المكتوب مش بصيغة صحيحة.";
+      $("syncStatusLine").className="status-line bad";
+      return;
+    }
+    syncCfg = {config:cfgObj, code:code};
+    lsSet(LS_SYNC, syncCfg);
+    $("syncStatusLine").textContent = "جارِ الاتصال...";
+    $("syncStatusLine").className="status-line";
+    connectSync(cfgObj, code);
+  });
+  $("disconnectSyncBtn").addEventListener("click", function(){
+    if(unsub){ unsub(); unsub=null; }
+    fbDb=null;
+    syncCfg=null;
+    lsSet(LS_SYNC, null);
+    localStorage.removeItem(LS_SYNC);
+    $("fbConfig").value=""; $("syncCode").value="";
+    setBadge("off","محفوظ محليًا");
+    $("syncStatusLine").textContent = "تم إلغاء المزامنة. البيانات هتفضل محفوظة في المتصفح ده بس.";
+    $("syncStatusLine").className="status-line";
+  });
 
-        // INITIALIZATION & LIGHTWEIGHT CLOUD SYNC
-        async function initApp() {
-            document.getElementById('syncCodeLabel').innerText = syncRoomKey;
-            loadFromLocalStorage();
-            renderUI();
-            await fetchFromCloud();
-            
-            // Auto sync poll every 4 seconds
-            setInterval(fetchFromCloud, 4000);
-        }
+  // ---------- export ----------
+  function buildSheetForMonth(y,m){
+    var key = monthKey(y,m);
+    var monthTx = transactions.filter(function(t){ return txMonthKey(t)===key; })
+      .sort(function(a,b){ return a.date.localeCompare(b.date); });
 
-        function getCloudUrl() {
-            return `https://api.npoint.io/${hashString(syncRoomKey)}`;
-        }
+    var rows = monthTx.map(function(t){
+      return {
+        "التاريخ": t.date,
+        "البند": t.category,
+        "المبلغ": t.amount,
+        "ملاحظة": t.note || ""
+      };
+    });
+    var total = monthTx.reduce(function(s,t){ return s+t.amount; },0);
+    var byCat = {};
+    monthTx.forEach(function(t){ byCat[t.category]=(byCat[t.category]||0)+t.amount; });
+    var summaryRows = Object.keys(byCat).sort(function(a,b){return byCat[b]-byCat[a];}).map(function(c){
+      return {"البند": c, "الإجمالي": byCat[c], "النسبة %": total ? Math.round(byCat[c]/total*1000)/10 : 0};
+    });
+    summaryRows.push({"البند":"الإجمالي الكلي", "الإجمالي": total, "النسبة %": 100});
 
-        function hashString(str) {
-            let hash = 0;
-            for (let i = 0; i < str.length; i++) {
-                hash = ((hash << 5) - hash) + str.charCodeAt(i);
-                hash |= 0;
-            }
-            return 'b' + Math.abs(hash).toString(36);
-        }
+    return {rows:rows, summaryRows:summaryRows, total:total, label: MONTH_NAMES[m]+" "+y};
+  }
 
-        function loadFromLocalStorage() {
-            const local = localStorage.getItem('my_personal_wallet_data_v3');
-            if (local) {
-                try { appData = JSON.parse(local); } catch (e) { console.error(e); }
-            }
-        }
+  function exportMonth(){
+    var data = buildSheetForMonth(viewYear, viewMonth);
+    if(!data.rows.length){ alert("مفيش حركات في الشهر ده للتصدير."); return; }
+    var wb = XLSX.utils.book_new();
+    var wsSummary = XLSX.utils.json_to_sheet(data.summaryRows);
+    var wsTx = XLSX.utils.json_to_sheet(data.rows);
+    wsSummary["!cols"] = [{wch:22},{wch:14},{wch:10}];
+    wsTx["!cols"] = [{wch:12},{wch:18},{wch:12},{wch:34}];
+    XLSX.utils.book_append_sheet(wb, wsSummary, "ملخص");
+    XLSX.utils.book_append_sheet(wb, wsTx, "الحركات");
+    XLSX.writeFile(wb, "مصاريف "+data.label+".xlsx");
+  }
 
-        function saveLocallyAndSync() {
-            appData.updatedAt = Date.now();
-            localStorage.setItem('my_personal_wallet_data_v3', JSON.stringify(appData));
-            renderUI();
-            pushToCloud();
-        }
+  function exportAll(){
+    if(!transactions.length){ alert("لسه مفيش أي بيانات مسجلة."); return; }
+    var months = {};
+    transactions.forEach(function(t){ months[txMonthKey(t)] = true; });
+    var keys = Object.keys(months).sort();
+    var wb = XLSX.utils.book_new();
 
-        async function fetchFromCloud() {
-            const spinner = document.getElementById('syncSpinner');
-            if (spinner) spinner.classList.add('fa-spin');
-            
-            try {
-                const res = await fetch(getCloudUrl());
-                if (res.ok) {
-                    const remoteData = await res.json();
-                    if (remoteData && remoteData.updatedAt > (appData.updatedAt || 0)) {
-                        appData = remoteData;
-                        localStorage.setItem('my_personal_wallet_data_v3', JSON.stringify(appData));
-                        renderUI();
-                    }
-                }
-            } catch (err) {
-                console.warn("Cloud pull fallback:", err);
-            } finally {
-                if (spinner) setTimeout(() => spinner.classList.remove('fa-spin'), 400);
-            }
-        }
+    var overview = keys.map(function(k){
+      var parts = k.split("-");
+      var y = parseInt(parts[0],10), m = parseInt(parts[1],10)-1;
+      var d = buildSheetForMonth(y,m);
+      return {"الشهر": d.label, "الإجمالي": d.total, "عدد الحركات": d.rows.length};
+    });
+    var wsOverview = XLSX.utils.json_to_sheet(overview);
+    wsOverview["!cols"]=[{wch:16},{wch:12},{wch:14}];
+    XLSX.utils.book_append_sheet(wb, wsOverview, "نظرة عامة");
 
-        async function pushToCloud() {
-            try {
-                await fetch(getCloudUrl(), {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify(appData)
-                });
-            } catch (e) {
-                console.error("Cloud push failed:", e);
-            }
-        }
+    keys.forEach(function(k){
+      var parts = k.split("-");
+      var y = parseInt(parts[0],10), m = parseInt(parts[1],10)-1;
+      var d = buildSheetForMonth(y,m);
+      var ws = XLSX.utils.json_to_sheet(d.rows);
+      ws["!cols"] = [{wch:12},{wch:18},{wch:12},{wch:34}];
+      var sheetName = d.label.slice(0,31);
+      XLSX.utils.book_append_sheet(wb, ws, sheetName);
+    });
+    XLSX.writeFile(wb, "كل مصاريفي.xlsx");
+  }
 
-        function manualSync() {
-            fetchFromCloud();
-        }
+  $("exportBtn").addEventListener("click", exportMonth);
+  $("exportAllBtn").addEventListener("click", exportAll);
 
-        function openSyncSettings() {
-            document.getElementById('syncCodeInput').value = syncRoomKey;
-            document.getElementById('syncModal').classList.remove('hidden');
-        }
-
-        function closeSyncModal() {
-            document.getElementById('syncModal').classList.add('hidden');
-        }
-
-        function saveSyncCode() {
-            const val = document.getElementById('syncCodeInput').value.trim();
-            if (val) {
-                syncRoomKey = val;
-                localStorage.setItem('wallet_sync_room_id', syncRoomKey);
-                document.getElementById('syncCodeLabel').innerText = syncRoomKey;
-                closeSyncModal();
-                fetchFromCloud();
-            }
-        }
-
-        // UI RENDERERS
-        function renderUI() {
-            // Commitments checkboxes
-            ['gamya1', 'gamya2', 'ac'].forEach(key => {
-                const isPaid = appData.commitments ? appData.commitments[key] : false;
-                const chk = document.getElementById('chk' + key.charAt(0).toUpperCase() + key.slice(1));
-                const badge = document.getElementById('badge' + key.charAt(0).toUpperCase() + key.slice(1));
-                if (chk) chk.checked = isPaid;
-                if (badge) {
-                    badge.innerText = isPaid ? "تم الدفع ✅" : "لم تدفع";
-                    badge.className = `text-xs px-2.5 py-1 rounded-lg ${isPaid ? 'bg-emerald-500/20 text-emerald-300 font-bold border border-emerald-500/30' : 'bg-slate-800 text-slate-400'}`;
-                }
-            });
-
-            // Calculate Totals
-            let totalSaved = 0;
-            let catTotals = {
-                'مواصلات': 0,
-                'جمعية 1': 0,
-                'جمعية 2': 0,
-                'قسط التكييف': 0,
-                'القهوة وتدليل النفس': 0,
-                'التحويشة': 0
-            };
-
-            (appData.transactions || []).forEach(tx => {
-                const amt = parseFloat(tx.amount) || 0;
-                if (catTotals.hasOwnProperty(tx.category)) {
-                    catTotals[tx.category] += amt;
-                }
-                if (tx.category === 'التحويشة') {
-                    totalSaved += amt;
-                }
-            });
-
-            // Render Savings Vault
-            document.getElementById('totalSavingsDisplay').innerText = totalSaved.toLocaleString('ar-EG') + ' ج.م';
-            const goal = appData.savingsGoal || 50000;
-            document.getElementById('targetAmountDisplay').innerText = goal.toLocaleString('ar-EG');
-            const pct = Math.min(Math.round((totalSaved / goal) * 100), 100);
-            document.getElementById('savingsProgressPercent').innerText = pct + '%';
-            document.getElementById('savingsProgressBar').style.width = pct + '%';
-
-            // Render Category Totals List
-            const catListEl = document.getElementById('categoryTotalsList');
-            catListEl.innerHTML = '';
-            Object.keys(catTotals).forEach(cat => {
-                const val = catTotals[cat];
-                catListEl.innerHTML += `
-                    <div class="flex justify-between items-center p-3 rounded-xl glass-panel">
-                        <span class="text-sm font-semibold">${cat}</span>
-                        <span class="font-bold text-cyan-300">${val.toLocaleString('ar-EG')} ج.م</span>
-                    </div>
-                `;
-            });
-
-            // Transactions Table
-            const tbody = document.getElementById('txTableBody');
-            tbody.innerHTML = '';
-            const txs = (appData.transactions || []).slice().reverse();
-            document.getElementById('txCount').innerText = `${txs.length} معاملة`;
-
-            txs.forEach((tx, idx) => {
-                const realIdx = appData.transactions.length - 1 - idx;
-                tbody.innerHTML += `
-                    <tr class="hover:bg-white/5 transition">
-                        <td class="py-3 text-slate-400 text-xs">${tx.date}</td>
-                        <td class="py-3 font-semibold text-cyan-300">${tx.category}</td>
-                        <td class="py-3 text-slate-300">${tx.note || '-'}</td>
-                        <td class="py-3 font-bold ${tx.category === 'التحويشة' ? 'text-emerald-400' : 'text-amber-400'}">${parseFloat(tx.amount).toLocaleString('ar-EG')} ج.م</td>
-                        <td class="py-3 text-center">
-                            <button onclick="deleteTransaction(${realIdx})" class="text-rose-400 hover:text-rose-300 p-1">
-                                <i class="fa-solid fa-trash-can"></i>
-                            </button>
-                        </td>
-                    </tr>
-                `;
-            });
-
-            renderChart(catTotals);
-        }
-
-        function renderChart(catTotals) {
-            const ctx = document.getElementById('expensesChart').getContext('2d');
-            const labels = Object.keys(catTotals);
-            const data = Object.values(catTotals);
-
-            if (chartInstance) chartInstance.destroy();
-
-            chartInstance = new Chart(ctx, {
-                type: 'doughnut',
-                data: {
-                    labels: labels,
-                    datasets: [{
-                        data: data,
-                        backgroundColor: ['#00f2fe', '#8b5cf6', '#6366f1', '#38bdf8', '#f59e0b', '#10b981'],
-                        borderWidth: 0
-                    }]
-                },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    plugins: {
-                        legend: { position: 'bottom', labels: { color: '#cbd5e1', font: { family: 'Tajawal' } } }
-                    }
-                }
-            });
-        }
-
-        // ACTIONS
-        function addTransaction(e) {
-            e.preventDefault();
-            const amount = parseFloat(document.getElementById('txAmount').value);
-            const category = document.getElementById('txCategory').value;
-            const note = document.getElementById('txNote').value;
-
-            if (!amount || amount <= 0) return;
-
-            const newTx = {
-                id: Date.now(),
-                amount: amount,
-                category: category,
-                note: note,
-                date: new Date().toLocaleDateString('ar-EG', { month: 'numeric', day: 'numeric', hour: '2-digit', minute: '2-digit' })
-            };
-
-            if (!appData.transactions) appData.transactions = [];
-            appData.transactions.push(newTx);
-
-            if (category === 'جمعية 1') appData.commitments.gamya1 = true;
-            if (category === 'جمعية 2') appData.commitments.gamya2 = true;
-            if (category === 'قسط التكييف') appData.commitments.ac = true;
-
-            document.getElementById('txAmount').value = '';
-            document.getElementById('txNote').value = '';
-
-            saveLocallyAndSync();
-        }
-
-        function deleteTransaction(index) {
-            if (confirm('هل أنت تأكد من حذف هذه المعاملة؟')) {
-                appData.transactions.splice(index, 1);
-                saveLocallyAndSync();
-            }
-        }
-
-        function toggleCommitment(key) {
-            if (!appData.commitments) appData.commitments = {};
-            appData.commitments[key] = !appData.commitments[key];
-            saveLocallyAndSync();
-        }
-
-        // MODAL HANDLERS
-        function openTargetModal() {
-            document.getElementById('targetInput').value = appData.savingsGoal || 50000;
-            document.getElementById('targetModal').classList.remove('hidden');
-        }
-
-        function closeTargetModal() {
-            document.getElementById('targetModal').classList.add('hidden');
-        }
-
-        function saveTargetGoal() {
-            const val = parseFloat(document.getElementById('targetInput').value);
-            if (val > 0) {
-                appData.savingsGoal = val;
-                saveLocallyAndSync();
-                closeTargetModal();
-            }
-        }
-
-        // EXPORT TO EXCEL
-        function exportToExcel() {
-            if (!appData.transactions || appData.transactions.length === 0) {
-                alert('لا توجد بيانات لتصديرها');
-                return;
-            }
-            const dataToExport = appData.transactions.map(t => ({
-                'التاريخ': t.date,
-                'القسم': t.category,
-                'البيان': t.note || '',
-                'المبلغ (ج.م)': t.amount
-            }));
-
-            const ws = XLSX.utils.json_to_sheet(dataToExport);
-            const wb = XLSX.utils.book_new();
-            XLSX.utils.book_append_sheet(wb, ws, "مصاريفي");
-            XLSX.writeFile(wb, "تقرير_المصاريف_الشخصية.xlsx");
-        }
-    </script>
+  renderAll();
+  tryAutoConnect();
+})();
+</script>
 </body>
 </html>
